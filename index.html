@@ -1,0 +1,1121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="NAMGO is the inventory layer for small businesses. Shops license us their brand; we design, manufacture, ship, and handle the customers. Zero inventory, zero cost.">
+<meta property="og:title" content="NAMGO — Sell merch. Stock nothing.">
+<meta property="og:description" content="The inventory layer for small businesses that should be selling merch and aren't.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<title>NAMGO Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ============================================================
+     TOKENS
+     Light is the committed direction: butter cream ground,
+     deep oxblood ink. Dark mirrors it as oxblood-black + cream.
+     ============================================================ */
+  :root {
+    --ground:      #f2eedc;
+    --ground-2:    #e7dfc4;
+    --ground-3:    #dcd2b2;
+    --ink:         #57181f;   /* display type + accent, one value on purpose */
+    --ink-press:   #3e1016;
+    --body:        #5b4a3c;
+    --body-soft:   #7d6c5b;
+    --on-ink:      #f6f2e2;
+    --line:        #d3c7a4;
+    --olive:       #4d4c33;
+    --gold:        #a8762b;
+    --good:        #46693f;
+    --card:        #fbf8ec;
+    --shade:       rgba(60, 30, 20, .13);
+    --curtain:     #57181f;
+
+    --f-display: "Archivo", "Helvetica Neue", Impact, sans-serif;
+    --f-body:    "Instrument Sans", -apple-system, "Segoe UI", sans-serif;
+    --f-mono:    "IBM Plex Mono", ui-monospace, Consolas, monospace;
+
+    --ease-out-expo: cubic-bezier(.16, 1, .3, 1);
+    --ease-io:       cubic-bezier(.65, .05, .36, 1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #16110f;
+      --ground-2:  #201814;
+      --ground-3:  #2b211b;
+      --ink:       #ecd8bb;
+      --ink-press: #fbeed7;
+      --body:      #c0ae99;
+      --body-soft: #968776;
+      --on-ink:    #1b1310;
+      --line:      #3e2f26;
+      --olive:     #b3b184;
+      --gold:      #d5a253;
+      --good:      #86b47c;
+      --card:      #1e1713;
+      --shade:     rgba(0, 0, 0, .5);
+      --curtain:   #0e0a09;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:    #16110f;
+    --ground-2:  #201814;
+    --ground-3:  #2b211b;
+    --ink:       #ecd8bb;
+    --ink-press: #fbeed7;
+    --body:      #c0ae99;
+    --body-soft: #968776;
+    --on-ink:    #1b1310;
+    --line:      #3e2f26;
+    --olive:     #b3b184;
+    --gold:      #d5a253;
+    --good:      #86b47c;
+    --card:      #1e1713;
+    --shade:     rgba(0, 0, 0, .5);
+    --curtain:   #0e0a09;
+  }
+
+  /* ============================================================
+     BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ground);
+    color: var(--body);
+    font-family: var(--f-body);
+    font-size: 16px;
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { margin: 0; color: var(--ink); font-family: var(--f-display); }
+  p { margin: 0; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; cursor: pointer; }
+  ::selection { background: var(--ink); color: var(--on-ink); }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+
+  .disp {
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--ink);
+    line-height: .86;
+    letter-spacing: -.015em;
+  }
+  .cond { font-stretch: 68%; }
+
+  .micro {
+    font-family: var(--f-body);
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--body-soft);
+  }
+
+  .wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 clamp(1.1rem, 3vw, 2.4rem); }
+
+  /* ============================================================
+     INTRO CURTAIN
+     ============================================================ */
+  #curtain {
+    position: fixed; inset: 0; z-index: 999;
+    background: var(--curtain);
+    display: grid; place-items: center;
+    transform: translateY(0);
+    transition: transform .95s var(--ease-out-expo);
+    will-change: transform;
+  }
+  #curtain.up { transform: translateY(-101%); }
+  .curtain-mark {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 110%;
+    text-transform: uppercase; color: var(--on-ink);
+    font-size: clamp(2rem, 7vw, 4.2rem); letter-spacing: .02em;
+    display: flex; gap: .04em; overflow: hidden;
+  }
+  .curtain-mark span {
+    display: block; transform: translateY(110%);
+    animation: cm-in .75s var(--ease-out-expo) forwards;
+  }
+  @keyframes cm-in { to { transform: translateY(0); } }
+  .curtain-bar {
+    position: absolute; left: 0; bottom: 0; height: 2px; width: 0;
+    background: var(--on-ink); opacity: .55;
+    animation: cbar 1.15s var(--ease-io) forwards;
+  }
+  @keyframes cbar { to { width: 100%; } }
+  body.no-curtain #curtain { display: none; }
+
+  /* ============================================================
+     REVEAL PRIMITIVES
+     .mask wraps one line/letter; .mask > i slides up into place.
+     Nothing moves until <body class="ready">.
+     ============================================================ */
+  .mask { display: block; overflow: hidden; }
+  .mask > i {
+    display: block; font-style: normal;
+    transform: translateY(108%);
+    transition: transform 1.15s var(--ease-out-expo);
+    transition-delay: var(--d, 0ms);
+  }
+  body.ready .mask > i { transform: translateY(0); }
+
+  .rise {
+    opacity: 0; transform: translateY(18px);
+    transition: opacity .9s var(--ease-out-expo), transform .9s var(--ease-out-expo);
+    transition-delay: var(--d, 0ms);
+  }
+  body.ready .rise { opacity: 1; transform: none; }
+
+  .open {
+    clip-path: inset(0 0 100% 0);
+    transform: scale(1.06);
+    transition: clip-path 1.25s var(--ease-out-expo), transform 1.6s var(--ease-out-expo);
+    transition-delay: var(--d, 0ms);
+  }
+  body.ready .open { clip-path: inset(0 0 0 0); transform: none; }
+
+  /* scroll-triggered, used below the fold */
+  .obs { opacity: 0; transform: translateY(24px); transition: opacity .8s var(--ease-out-expo), transform .8s var(--ease-out-expo); }
+  .obs.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    #curtain { display: none !important; }
+    .mask > i, .rise, .open, .obs {
+      transform: none !important; opacity: 1 !important;
+      clip-path: none !important; transition: none !important;
+    }
+    .curtain-mark span, .curtain-bar, .ticker-track, .live-dot { animation: none !important; }
+  }
+
+  /* ============================================================
+     TOP BAR
+     ============================================================ */
+  .bar {
+    position: sticky; top: 0; z-index: 60;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem;
+    padding: 1.1rem clamp(1.1rem, 3vw, 2.4rem);
+    background: var(--ground);
+    background: color-mix(in srgb, var(--ground) 88%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  .mark { justify-self: start; line-height: 1; }
+  .mark .mark-name {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 105%;
+    font-size: 1.5rem; letter-spacing: -.01em; text-transform: uppercase; color: var(--ink);
+    display: block;
+  }
+  .mark .mark-sub {
+    display: block; font-size: .54rem; font-weight: 600; letter-spacing: .38em;
+    text-transform: uppercase; color: var(--body-soft); margin-top: .18rem;
+  }
+  .tabs { display: flex; gap: .15rem; justify-self: center; flex-wrap: wrap; justify-content: center; }
+  .tab {
+    background: none; border: 0; padding: .5rem .8rem; border-radius: 999px;
+    font-size: .74rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--body); transition: color .25s, background .25s;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] { color: var(--ink); background: var(--ground-2); }
+  .bar-cta { justify-self: end; }
+  .pill {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: var(--ink); color: var(--on-ink);
+    border: 0; border-radius: 999px;
+    padding: .72rem 1.4rem;
+    font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    transition: transform .35s var(--ease-out-expo), background .25s;
+  }
+  .pill:hover { background: var(--ink-press); transform: translateY(-2px); }
+  .pill-ghost {
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+  }
+  .pill-ghost:hover { background: var(--ground-2); }
+
+  /* ============================================================
+     VIEWS
+     ============================================================ */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ============================================================
+     HERO — the Kane composition
+     ============================================================ */
+  .hero {
+    position: relative;
+    min-height: calc(100svh - 76px);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    padding-top: clamp(1.5rem, 5vh, 4rem);
+  }
+  .hero-top {
+    flex: 1;
+    display: grid; grid-template-columns: minmax(170px, 1fr) auto minmax(170px, 1fr);
+    align-items: center; gap: clamp(1rem, 3vw, 2.5rem);
+    padding: 0 clamp(1.1rem, 3vw, 2.4rem);
+  }
+  .hero-lead { max-width: 24ch; font-size: clamp(.95rem, 1.1vw, 1.06rem); color: var(--body); font-weight: 500; }
+  .hero-head {
+    text-align: center;
+    font-size: clamp(2.7rem, 6.4vw, 6.4rem);
+    letter-spacing: -.02em;
+  }
+  .hero-aside { justify-self: end; text-align: right; min-width: 8ch; }
+  .hero-aside .stat {
+    font-family: var(--f-mono); font-size: 1.9rem; color: var(--ink); font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .hero-aside .stat-k { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--body-soft); margin-top: .45rem; }
+
+  /* label rail sitting on the cap-line of the giant wordmark */
+  .rail {
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem;
+    padding: 0 clamp(1.1rem, 3vw, 2.4rem) .5rem;
+    flex-wrap: wrap;
+  }
+  .rail-group { display: flex; gap: clamp(1rem, 3vw, 2.6rem); flex-wrap: wrap; }
+  .rail-item { font-size: clamp(.66rem, .85vw, .8rem); font-weight: 700; letter-spacing: .13em; text-transform: uppercase; color: var(--ink); }
+  .rail-item.paren { color: var(--body-soft); }
+
+  /* giant edge-to-edge wordmark, clipped by the hero */
+  .giant-zone { position: relative; }
+  .giant {
+    --giant-size: 22vw;              /* JS refines this to fit exactly edge-to-edge */
+    display: flex; justify-content: space-between; align-items: flex-end;
+    padding: 0; margin-bottom: -.02em;
+  }
+  .giant .mask { flex: 0 0 auto; }
+  .giant .mask > i {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 112%;
+    font-size: var(--giant-size);
+    /* tight line box, with padding below the baseline so the mask's crop
+       lands in empty space instead of slicing the letterforms */
+    line-height: .8; padding-bottom: .1em;
+    color: var(--ink); letter-spacing: -.01em;
+  }
+
+  /* the floating card, overlapping the wordmark */
+  .shopcard {
+    position: absolute; z-index: 5;
+    left: 50%; transform: translateX(-50%);
+    bottom: -.75rem;
+    width: min(330px, 76vw);
+    border-radius: 22px; overflow: hidden;
+    background: var(--olive);
+    box-shadow: 0 30px 60px -30px var(--shade);
+    border: 1px solid var(--line);
+    border-color: color-mix(in srgb, var(--ink) 18%, transparent);
+  }
+  /* keep the intro transform from fighting the centring translate */
+  .shopcard.open { transform: translateX(-50%) scale(1.05); }
+  body.ready .shopcard.open { transform: translateX(-50%); }
+
+  .shopcard-media {
+    aspect-ratio: 3 / 3.4;
+    background:
+      radial-gradient(120% 70% at 72% 8%, rgba(255,240,210,.28), transparent 60%),
+      linear-gradient(168deg, #6d6a45 0%, #4a3a26 52%, #2a2015 100%);
+    position: relative;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 1.1rem;
+    padding: .8rem .8rem 1rem;
+  }
+  /* three live SKUs, so the card carries information instead of empty space */
+  .card-skus { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; }
+  .sku {
+    border-radius: 9px; padding: .5rem .35rem .45rem; text-align: center;
+    background: rgba(20,14,9,.42);
+    border: 1px solid rgba(246,242,226,.16);
+  }
+  .sku .sku-n {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 78%;
+    text-transform: uppercase; font-size: .56rem; letter-spacing: .06em;
+    color: #f6f2e2; opacity: .88; line-height: 1.15;
+  }
+  .sku .sku-p { font-family: var(--f-mono); font-size: .66rem; color: #e6c98d; margin-top: .25rem; }
+  .card-chiprow { display: flex; justify-content: space-between; align-items: center; }
+  .chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: rgba(246,242,226,.9); color: #34281c;
+    border-radius: 999px; padding: .35rem .7rem;
+    font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  }
+  .chip-round {
+    width: 30px; height: 30px; border-radius: 50%; padding: 0;
+    display: grid; place-items: center; font-size: .8rem; letter-spacing: 0;
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #4f8b45;
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.75); } }
+
+  .card-foot { color: #f6f2e2; }
+  .card-foot .kicker { font-size: .58rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; opacity: .82; }
+  .card-foot .shopname {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 96%;
+    font-size: 1.35rem; text-transform: uppercase; color: #f6f2e2; margin-top: .2rem; line-height: 1;
+  }
+  .card-foot .role { font-size: .74rem; opacity: .8; margin-top: .25rem; }
+  .card-foot hr { border: 0; border-top: 1px solid rgba(246,242,226,.25); margin: .8rem 0; }
+  .card-btn {
+    width: 100%; border: 0; border-radius: 999px;
+    background: #f6f2e2; color: #34281c;
+    padding: .7rem; font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    display: flex; align-items: center; justify-content: center; gap: .45rem;
+    transition: transform .3s var(--ease-out-expo);
+  }
+  .card-btn:hover { transform: translateY(-2px); }
+
+  /* ============================================================
+     TICKER
+     ============================================================ */
+  .ticker {
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    overflow: hidden; padding: .7rem 0; background: var(--ground);
+  }
+  .ticker-track { display: flex; gap: 2.6rem; width: max-content; animation: slide 32s linear infinite; }
+  .ticker:hover .ticker-track { animation-play-state: paused; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  .ticker-item {
+    font-family: var(--f-display); font-weight: 800; font-stretch: 80%;
+    text-transform: uppercase; font-size: .95rem; letter-spacing: .04em;
+    color: var(--ink); display: flex; align-items: center; gap: 2.6rem; white-space: nowrap;
+  }
+  .ticker-item::after { content: "◆"; font-size: .5rem; color: var(--gold); }
+
+  /* ============================================================
+     SECTIONS
+     ============================================================ */
+  .sec { padding: clamp(3.5rem, 8vw, 6.5rem) 0; }
+  .sec + .sec { border-top: 1px solid var(--line); }
+  .sec-head { max-width: 62ch; margin-bottom: clamp(2rem, 4vw, 3.2rem); }
+  .sec-head h2 { font-size: clamp(1.9rem, 4.4vw, 3.4rem); margin-top: .7rem; }
+  .sec-head p { margin-top: 1rem; font-size: 1.02rem; max-width: 56ch; }
+
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(1rem, 2vw, 1.6rem); }
+  .step { border-top: 2px solid var(--ink); padding-top: 1.1rem; }
+  .step .n { font-family: var(--f-mono); font-size: .74rem; color: var(--gold); letter-spacing: .1em; }
+  .step h3 { font-size: clamp(1.15rem, 1.8vw, 1.5rem); font-stretch: 84%; margin-top: .55rem; }
+  .step p { margin-top: .55rem; font-size: .93rem; }
+
+  /* ============================================================
+     CALCULATOR
+     ============================================================ */
+  .calc {
+    display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 3vw, 3rem);
+    background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+    padding: clamp(1.4rem, 3vw, 2.4rem);
+  }
+  .field + .field { margin-top: 1.6rem; }
+  .field-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+  .field-top label { font-weight: 600; font-size: .93rem; color: var(--ink); }
+  .field-top output { font-family: var(--f-mono); font-size: 1rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .field input[type="range"] { width: 100%; margin-top: .6rem; accent-color: var(--ink); }
+  .field .hint { font-size: .78rem; color: var(--body-soft); margin-top: .3rem; }
+
+  .calc-out { display: flex; flex-direction: column; justify-content: center; gap: 1rem; }
+  .payout { background: var(--ink); color: var(--on-ink); border-radius: 16px; padding: 1.4rem 1.5rem; }
+  .payout .k { font-size: .62rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; opacity: .8; }
+  .payout .v {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 92%;
+    font-size: clamp(2.4rem, 5vw, 3.4rem); line-height: 1; margin-top: .35rem;
+    color: var(--on-ink); font-variant-numeric: tabular-nums;
+  }
+  .subs { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
+  .sub { background: var(--ground-2); border-radius: 12px; padding: .8rem .9rem; }
+  .sub .k { font-size: .7rem; color: var(--body-soft); }
+  .sub .v { font-family: var(--f-mono); font-size: 1.05rem; color: var(--ink); margin-top: .15rem; font-variant-numeric: tabular-nums; }
+  .assump { font-size: .76rem; color: var(--body-soft); border-top: 1px dashed var(--line); padding-top: .8rem; line-height: 1.5; }
+
+  /* ============================================================
+     FAQ
+     ============================================================ */
+  .faq { border-bottom: 1px solid var(--line); }
+  .faq summary {
+    list-style: none; cursor: pointer; padding: 1.15rem 0;
+    display: flex; justify-content: space-between; align-items: center; gap: 1.5rem;
+    font-family: var(--f-display); font-weight: 800; font-stretch: 84%;
+    font-size: clamp(1rem, 1.6vw, 1.25rem); text-transform: uppercase; color: var(--ink);
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-family: var(--f-body); font-weight: 400; font-size: 1.4rem; color: var(--gold); }
+  .faq[open] summary::after { content: "–"; }
+  .faq p { padding-bottom: 1.15rem; max-width: 62ch; font-size: .95rem; }
+
+  /* ============================================================
+     STOREFRONT
+     ============================================================ */
+  .store-hero { background: var(--ink); color: var(--on-ink); padding: clamp(2rem, 5vw, 3.4rem) 0 clamp(1.6rem, 3vw, 2.4rem); }
+  .store-hero .cobrand { font-family: var(--f-mono); font-size: .7rem; letter-spacing: .1em; opacity: .8; text-transform: uppercase; }
+  .store-hero h1 { color: var(--on-ink); font-size: clamp(2.1rem, 6vw, 4rem); margin-top: .5rem; }
+  .store-hero .blurb { max-width: 48ch; margin-top: .8rem; color: var(--on-ink); opacity: .82; }
+  .lanekey { display: flex; gap: 1.4rem; flex-wrap: wrap; margin-top: 1.3rem; font-size: .78rem; color: var(--on-ink); opacity: .84; }
+  .lanekey span { display: inline-flex; align-items: center; gap: .45rem; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .dot.a { background: #d9a94a; }
+  .dot.b { background: #cf8a8a; }
+
+  .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: clamp(1.6rem, 3vw, 2.6rem) 0 3rem; }
+  .pcard { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; transition: transform .4s var(--ease-out-expo); }
+  .pcard:hover { transform: translateY(-4px); }
+  .pthumb {
+    aspect-ratio: 1; display: grid; place-items: center; text-align: center; padding: .9rem;
+    font-family: var(--f-display); font-weight: 900; font-stretch: 76%; text-transform: uppercase;
+    font-size: 1.05rem; color: #f6f2e2; line-height: .95;
+  }
+  .pbody { padding: .85rem .95rem 1rem; display: flex; flex-direction: column; gap: .3rem; flex: 1; }
+  .pname { font-weight: 600; font-size: .95rem; color: var(--ink); }
+  .pprice { font-family: var(--f-mono); font-size: .95rem; color: var(--ink); }
+  .plane { font-size: .7rem; color: var(--body-soft); display: inline-flex; align-items: center; gap: .35rem; }
+  .pdate { font-size: .74rem; color: var(--body-soft); margin-top: auto; padding-top: .35rem; }
+  .padd {
+    margin-top: .6rem; width: 100%; border-radius: 999px; border: 1px solid var(--ink);
+    background: transparent; color: var(--ink);
+    padding: .5rem; font-size: .66rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    transition: background .2s, color .2s;
+  }
+  .padd:hover { background: var(--ink); color: var(--on-ink); }
+  .padd.added { background: var(--good); border-color: var(--good); color: #fff; }
+  .cartbar {
+    position: sticky; bottom: 0; z-index: 20;
+    background: var(--card); border-top: 1px solid var(--line);
+    padding: .9rem clamp(1.1rem, 3vw, 2.4rem);
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    font-size: .85rem;
+  }
+  .cartbar .sum { font-family: var(--f-mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* ============================================================
+     DASHBOARD
+     ============================================================ */
+  .dashhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap; padding: clamp(2rem, 4vw, 3rem) 0 1.6rem; }
+  .dashhead h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); margin-top: .5rem; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  .stat-c { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.1rem 1.2rem; }
+  .stat-c .k { font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--body-soft); }
+  .stat-c .v { font-family: var(--f-display); font-weight: 900; font-stretch: 92%; font-size: 2rem; color: var(--ink); margin-top: .35rem; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat-c .d { font-size: .76rem; font-weight: 600; margin-top: .4rem; }
+  .d.up { color: var(--good); }
+  .d.flat { color: var(--body-soft); }
+
+  .dash2 { display: grid; grid-template-columns: 1.25fr 1fr; gap: 1.1rem; padding: 1.6rem 0 4rem; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.3rem 1.4rem; }
+  .panel h3 { font-size: 1rem; font-stretch: 86%; letter-spacing: .04em; }
+  .panel .sub-note { font-size: .76rem; color: var(--body-soft); margin-top: .25rem; }
+  .barrow { display: grid; grid-template-columns: 96px 1fr 46px; align-items: center; gap: .7rem; font-size: .82rem; margin-top: .65rem; }
+  .track { background: var(--ground-2); border-radius: 999px; height: 9px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 999px; background: var(--gold); width: 0; transition: width 1.1s var(--ease-out-expo); }
+  .fill.alt { background: var(--ink); }
+  .barval { font-family: var(--f-mono); text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .cmp { display: flex; justify-content: space-between; align-items: center; padding: .6rem 0; border-bottom: 1px dashed var(--line); font-size: .87rem; }
+  .cmp:last-child { border-bottom: 0; }
+  .tagpill { font-size: .64rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .2rem .6rem; border-radius: 999px; }
+  .tagpill.top { background: var(--ground-2); background: color-mix(in srgb, var(--good) 22%, transparent); color: var(--good); }
+  .tagpill.mid { background: var(--ground-2); background: color-mix(in srgb, var(--gold) 24%, transparent); color: var(--gold); }
+  .drow { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .55rem 0; border-bottom: 1px dashed var(--line); font-size: .87rem; }
+  .drow:last-child { border-bottom: 0; }
+  .drow .meta { font-family: var(--f-mono); font-size: .72rem; color: var(--body-soft); }
+
+  /* ============================================================
+     STUDIO
+     ============================================================ */
+  .studio { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(1.2rem, 3vw, 2rem); padding: 0 0 4rem; align-items: start; }
+  .drop {
+    border: 2px dashed var(--line); border-radius: 18px; background: var(--card);
+    padding: clamp(1.8rem, 4vw, 2.8rem) 1.4rem; text-align: center;
+    transition: border-color .3s, background .3s;
+  }
+  .drop:hover, .drop.hot { border-color: var(--ink); background: var(--ground-2); }
+  .drop .ic { font-size: 1.7rem; }
+  .drop h3 { font-size: 1.15rem; font-stretch: 86%; margin-top: .6rem; }
+  .drop p { font-size: .85rem; margin-top: .35rem; }
+  .note { display: flex; gap: .6rem; background: var(--ground-2); border-radius: 12px; padding: .85rem 1rem; font-size: .84rem; margin-top: .9rem; }
+  .mocks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .mock { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: .9rem; text-align: center; }
+  .mock-surface {
+    aspect-ratio: 1; border-radius: 10px; display: grid; place-items: center; overflow: hidden; position: relative;
+  }
+  .mock-surface img { max-width: 46%; max-height: 46%; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,.35)); }
+  .mock-surface .slot {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 88%;
+    font-size: 1.2rem; color: #f6f2e2; letter-spacing: .04em; opacity: .92;
+  }
+  .mock-label { font-size: .74rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--body-soft); margin-top: .65rem; }
+
+  /* ============================================================
+     FOOT
+     ============================================================ */
+  .foot { border-top: 1px solid var(--line); padding: 2.2rem 0 3rem; font-size: .78rem; color: var(--body-soft); text-align: center; }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 980px) {
+    .calc, .dash2, .studio { grid-template-columns: 1fr; }
+    .three { grid-template-columns: 1fr; }
+    .pgrid, .stats { grid-template-columns: repeat(2, 1fr); }
+    .hero-aside { display: none; }
+    .hero-top { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+    .hero-lead { max-width: 30ch; }
+  }
+  @media (max-width: 760px) {
+    /* the bar collapses to wordmark + one scrollable tab strip */
+    .bar { grid-template-columns: 1fr; row-gap: .8rem; padding-bottom: .8rem; }
+    .bar-cta { display: none; }
+    .tabs {
+      justify-self: stretch; justify-content: flex-start;
+      flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+      margin: 0 calc(-1 * clamp(1.1rem, 3vw, 2.4rem)); padding: 0 clamp(1.1rem, 3vw, 2.4rem);
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: 0 0 auto; }
+
+    /* the overlap composition doesn't survive a narrow column — restack it */
+    .hero { min-height: 0; padding-top: 1.2rem; }
+    .hero-top { flex: 0 0 auto; gap: 1.2rem; }
+    .hero-head { font-size: clamp(2.4rem, 12.5vw, 4rem); }
+    .hero-lead { max-width: 34ch; }
+
+    .shopcard,
+    body.ready .shopcard.open,
+    .shopcard.open {
+      position: static; transform: none;
+      width: 100%; max-width: 330px;
+      margin: 1.6rem auto .4rem;
+    }
+    .shopcard-media { aspect-ratio: auto; }
+    .card-skus { gap: .5rem; }
+
+    .rail { padding-top: 1.4rem; }
+    .rail-group:last-child { display: none; }
+    .giant { margin-bottom: 0; }
+  }
+</style>
+</head>
+<body>
+
+
+<!-- ============================ CURTAIN ============================ -->
+<div id="curtain" aria-hidden="true">
+  <div class="curtain-mark">
+    <span style="animation-delay:.05s">N</span><span style="animation-delay:.11s">A</span><span style="animation-delay:.17s">M</span><span style="animation-delay:.23s">G</span><span style="animation-delay:.29s">O</span>
+  </div>
+  <div class="curtain-bar"></div>
+</div>
+
+<!-- ============================ TOP BAR ============================ -->
+<header class="bar">
+  <a class="mark" href="#" onclick="showView('home');return false;">
+    <span class="mark-name">NAMGO</span>
+    <span class="mark-sub">Merch Without Inventory</span>
+  </a>
+  <nav class="tabs" role="tablist" aria-label="Demo screens">
+    <button class="tab" role="tab" data-view="home" aria-selected="true">Home</button>
+    <button class="tab" role="tab" data-view="store" aria-selected="false">Storefront</button>
+    <button class="tab" role="tab" data-view="dash" aria-selected="false">Dashboard</button>
+    <button class="tab" role="tab" data-view="studio" aria-selected="false">Design Studio</button>
+  </nav>
+  <div class="bar-cta"><button class="pill">Book a demo</button></div>
+</header>
+
+<!-- ============================ HOME ============================ -->
+<main id="view-home" class="view active">
+
+  <section class="hero">
+    <div class="hero-top">
+      <p class="hero-lead rise" style="--d:640ms">Your customers already want your merch. You just have no practical way to sell it. We're the inventory.</p>
+
+      <h1 class="hero-head disp cond">
+        <span class="mask"><i style="--d:300ms">Sell merch.</i></span>
+        <span class="mask"><i style="--d:400ms">Stock nothing.</i></span>
+      </h1>
+
+      <div class="hero-aside rise" style="--d:540ms">
+        <div class="stat">$0</div>
+        <div class="stat-k">Up front, ever</div>
+      </div>
+    </div>
+
+    <div class="rail">
+      <div class="rail-group">
+        <span class="rail-item rise" style="--d:950ms">Stickers</span>
+        <span class="rail-item rise" style="--d:990ms">Pins</span>
+        <span class="rail-item rise" style="--d:1030ms">Totes</span>
+        <span class="rail-item rise" style="--d:1070ms">Tees</span>
+      </div>
+      <div class="rail-group">
+        <span class="rail-item paren rise" style="--d:1110ms">(No inventory)</span>
+        <span class="rail-item paren rise" style="--d:1150ms">(No risk)</span>
+      </div>
+    </div>
+
+    <div class="giant-zone">
+      <div class="giant" aria-label="NAMGO">
+        <span class="mask"><i style="--d:540ms">N</i></span>
+        <span class="mask"><i style="--d:600ms">A</i></span>
+        <span class="mask"><i style="--d:660ms">M</i></span>
+        <span class="mask"><i style="--d:720ms">G</i></span>
+        <span class="mask"><i style="--d:780ms">O</i></span>
+      </div>
+
+      <div class="shopcard open" style="--d:640ms">
+        <div class="shopcard-media">
+          <div class="card-chiprow">
+            <span class="chip"><span class="live-dot"></span> Storefront live</span>
+            <span class="chip chip-round" aria-hidden="true">↗</span>
+          </div>
+
+          <div class="card-skus">
+            <div class="sku"><div class="sku-n">Sticker<br>sheet</div><div class="sku-p">$6</div></div>
+            <div class="sku"><div class="sku-n">Enamel<br>pin</div><div class="sku-p">$12</div></div>
+            <div class="sku"><div class="sku-n">Canvas<br>tote</div><div class="sku-p">$24</div></div>
+          </div>
+
+          <div class="card-foot">
+            <div class="kicker">Customer zero</div>
+            <div class="shopname">Dao Artisan Noodle</div>
+            <div class="role">31 units sold this month · $148 royalty</div>
+            <hr>
+            <button class="card-btn" onclick="showView('store')">Visit storefront →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+
+  <!-- PROOF -->
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head obs">
+        <p class="micro">Proof, not a pitch deck</p>
+        <h2 class="disp cond">We built this because<br>we needed it ourselves</h2>
+        <p>Our founder runs Dao Artisan Noodle and built its entire merch line personally — uniforms, aprons, hats, to-go bags, shirts. Months of sourcing, minimums, and boxes in a back room, for a side product. NAMGO is the tool we wished existed.</p>
+      </div>
+      <div class="three">
+        <div class="step obs"><p class="n">01</p><h3 class="disp cond">Send us your logo</h3><p>Upload whatever you have. No design file required — we clean it up and vectorize it.</p></div>
+        <div class="step obs"><p class="n">02</p><h3 class="disp cond">Approve the designs</h3><p>Concepts across your product line within 48 hours. Two free revision rounds.</p></div>
+        <div class="step obs"><p class="n">03</p><h3 class="disp cond">Get paid on every sale</h3><p>We host the store, make the goods, ship them, and handle support. You collect a royalty.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="sec" id="calc">
+    <div class="wrap">
+      <div class="sec-head obs">
+        <p class="micro">Run it with your own numbers</p>
+        <h2 class="disp cond">What could your shop earn?</h2>
+        <p>These sliders run the same funnel model we use to forecast every launch. Every assumption is printed under the result — nothing here is a guarantee.</p>
+      </div>
+
+      <div class="calc obs">
+        <div>
+          <div class="field">
+            <div class="field-top"><label for="followers">Instagram followers</label><output id="o-followers">3,000</output></div>
+            <input type="range" id="followers" min="200" max="20000" step="100" value="3000">
+            <p class="hint">Real engagement, not purchased followers.</p>
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="traffic">Daily foot traffic</label><output id="o-traffic">200</output></div>
+            <input type="range" id="traffic" min="20" max="1000" step="10" value="200">
+            <p class="hint">Rough daily customer count. It doesn't need to be exact.</p>
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="royalty">Royalty tier</label><output id="o-royalty">15%</output></div>
+            <input type="range" id="royalty" min="10" max="20" step="1" value="15">
+            <p class="hint">Standard tier is 10–20% of retail. Premium and custom run 25–50%.</p>
+          </div>
+        </div>
+
+        <div class="calc-out">
+          <div class="payout">
+            <div class="k">Estimated monthly royalty</div>
+            <div class="v" id="o-payout">$0</div>
+          </div>
+          <div class="subs">
+            <div class="sub"><div class="k">Sessions / mo</div><div class="v" id="o-sessions">0</div></div>
+            <div class="sub"><div class="k">Orders / mo</div><div class="v" id="o-orders">0</div></div>
+            <div class="sub"><div class="k">GMV / mo</div><div class="v" id="o-gmv">$0</div></div>
+            <div class="sub"><div class="k">Avg order value</div><div class="v">$38</div></div>
+          </div>
+          <p class="assump"><strong>Assumptions, all labeled:</strong> counter QR converts ~1.5% of monthly foot traffic into storefront visits; Instagram drives ~1% of followers as clicks per month; visits convert to orders at 5% (warm affinity traffic, vs. 1.4–2.7% typical ecommerce); AOV fixed at $38. Planning estimates from our funnel model — actuals get measured from day one and will move this number.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head obs">
+        <p class="micro">No cost, no inventory, no lock-in</p>
+        <h2 class="disp cond">Questions owners actually ask</h2>
+      </div>
+      <div class="obs">
+        <details class="faq" open>
+          <summary>What does this cost me?</summary>
+          <p>Nothing up front. We cover design, manufacturing, storefront hosting, and shipping. You earn a royalty on what sells — if nothing sells, it costs you nothing.</p>
+        </details>
+        <details class="faq">
+          <summary>What if I don't like the designs?</summary>
+          <p>You get two free revision rounds on every design. Nothing reaches your storefront without your approval, and every design passes a human QA and IP check before it reaches you.</p>
+        </details>
+        <details class="faq">
+          <summary>How long until my fans get their order?</summary>
+          <p>Most items — stickers, pins, mugs, basic apparel — ship from a US partner in 3–6 days. A smaller set of specialty items runs through our overseas line at 18–25 days. That's shown as a date on the product page before checkout, never as a surprise after.</p>
+        </details>
+        <details class="faq">
+          <summary>Am I locked into anything?</summary>
+          <p>No contract lock-in. Pause or end the license whenever you want; we handle any orders already in flight.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap"><p class="foot">Demo build for partner conversations. Figures are planning assumptions, not commitments. · NAMGO</p></div>
+</main>
+
+<!-- ============================ STOREFRONT ============================ -->
+<main id="view-store" class="view">
+  <section class="store-hero">
+    <div class="wrap">
+      <p class="cobrand">Made for Dao Artisan Noodle by NAMGO</p>
+      <h1 class="disp cond">Dao Artisan Noodle</h1>
+      <p class="blurb">Everything on this shelf is made to order in small batches. Grab a sticker at the counter, or send one to somebody who moved away.</p>
+      <div class="lanekey">
+        <span><span class="dot a"></span> Ships in 3–6 days</span>
+        <span><span class="dot b"></span> Small batch · ships in 18–25 days</span>
+      </div>
+    </div>
+  </section>
+  <div class="wrap"><div class="pgrid" id="pgrid"></div></div>
+  <div class="cartbar">
+    <span><strong id="cart-n">0</strong> item(s) in cart</span>
+    <span class="sum">Subtotal $<span id="cart-t">0.00</span></span>
+  </div>
+</main>
+
+<!-- ============================ DASHBOARD ============================ -->
+<main id="view-dash" class="view">
+  <div class="wrap">
+    <div class="dashhead">
+      <div>
+        <p class="micro">Dao Artisan Noodle · shop dashboard</p>
+        <h2 class="disp cond">This month at a glance</h2>
+      </div>
+      <span class="pill pill-ghost">Payout scheduled · Sep 1</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat-c"><div class="k">Units sold</div><div class="v">31</div><div class="d up">↑ 24% vs. last month</div></div>
+      <div class="stat-c"><div class="k">Gross sales</div><div class="v">$986</div><div class="d up">↑ 18%</div></div>
+      <div class="stat-c"><div class="k">Royalty earned</div><div class="v">$148</div><div class="d up">↑ 18%</div></div>
+      <div class="stat-c"><div class="k">Revisions used</div><div class="v">1/2</div><div class="d flat">One free round left</div></div>
+    </div>
+
+    <div class="dash2">
+      <div class="panel">
+        <h3 class="disp">Top products</h3>
+        <div class="barrow"><span>Sticker sheet</span><div class="track"><div class="fill" data-w="88"></div></div><span class="barval">11</span></div>
+        <div class="barrow"><span>Enamel pin</span><div class="track"><div class="fill" data-w="64"></div></div><span class="barval">8</span></div>
+        <div class="barrow"><span>Tote bag</span><div class="track"><div class="fill" data-w="48"></div></div><span class="barval">6</span></div>
+        <div class="barrow"><span>T-shirt</span><div class="track"><div class="fill" data-w="32"></div></div><span class="barval">4</span></div>
+        <div class="barrow"><span>Hoodie</span><div class="track"><div class="fill" data-w="16"></div></div><span class="barval">2</span></div>
+
+        <h3 class="disp" style="margin-top:1.7rem">Traffic by channel</h3>
+        <div class="barrow"><span>Counter QR</span><div class="track"><div class="fill alt" data-w="70"></div></div><span class="barval">94</span></div>
+        <div class="barrow"><span>Instagram</span><div class="track"><div class="fill alt" data-w="26"></div></div><span class="barval">35</span></div>
+        <div class="barrow"><span>Email list</span><div class="track"><div class="fill alt" data-w="11"></div></div><span class="barval">14</span></div>
+        <div class="barrow"><span>Direct</span><div class="track"><div class="fill alt" data-w="8"></div></div><span class="barval">10</span></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:1.1rem">
+        <div class="panel">
+          <h3 class="disp">How you compare</h3>
+          <p class="sub-note" style="margin-bottom:.6rem">Independent restaurants, this metro size</p>
+          <div class="cmp"><span>Units / month</span><span class="tagpill top">Top 20%</span></div>
+          <div class="cmp"><span>Scan → purchase rate</span><span class="tagpill mid">Middle</span></div>
+          <div class="cmp"><span>Repeat buyer rate</span><span class="tagpill top">Top 20%</span></div>
+        </div>
+        <div class="panel">
+          <h3 class="disp">Designs</h3>
+          <div class="drow"><span>Noodle bowl logo tee</span><span class="meta">Live · 1 revision</span></div>
+          <div class="drow"><span>"Est. 2019" sticker sheet</span><span class="meta">Live · 0 revisions</span></div>
+          <div class="drow"><span>Steam mark tote</span><span class="meta">In QA</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ============================ STUDIO ============================ -->
+<main id="view-studio" class="view">
+  <div class="wrap">
+    <div class="sec-head" style="padding-top:clamp(2rem,4vw,3rem)">
+      <p class="micro">Design studio</p>
+      <h2 class="disp cond">Upload a logo. Watch it land.</h2>
+      <p>This is the moment that closes a demo call — drop in the owner's real logo and it appears on the product line while they're still on the phone.</p>
+    </div>
+
+    <div class="studio">
+      <div>
+        <div class="drop" id="drop" tabindex="0" role="button" aria-label="Upload a logo image">
+          <div class="ic">⌁</div>
+          <h3 class="disp">Drop your logo here</h3>
+          <p>PNG, JPG, or SVG — auto-vectorized in production</p>
+          <input type="file" id="logo" accept="image/*" hidden>
+        </div>
+        <div class="note">🔎 <span>Every design passes human QA and an IP screen before it reaches the shop. This preview is instant; the real thing takes about 48 hours.</span></div>
+        <div class="note">✏️ <span>Two free revision rounds included. A third moves the shop to the premium tier.</span></div>
+      </div>
+      <div class="mocks" id="mocks"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------------- intro sequence ---------------- */
+  var curtain = document.getElementById("curtain");
+  function startHero() { document.body.classList.add("ready"); }
+
+  if (reduced) {
+    document.body.classList.add("no-curtain", "ready");
+  } else {
+    window.setTimeout(function () {
+      curtain.classList.add("up");
+      // hero reveal begins while the curtain is still travelling — the
+      // overlap is what makes it read as one motion instead of two.
+      window.setTimeout(startHero, 60);
+      window.setTimeout(function () { curtain.style.display = "none"; }, 1050);
+    }, 900);
+  }
+
+  /* ---------------- fit the giant wordmark edge-to-edge ----------------
+     Measure the letters at a known size, then scale the type so their
+     natural width equals the container. Re-run once the webfont lands
+     and on resize, so it holds even if Archivo never loads.           */
+  var giant = document.querySelector(".giant");
+  var giantLetters = giant ? Array.prototype.slice.call(giant.querySelectorAll(".mask > i")) : [];
+
+  function fitGiant() {
+    if (!giant || !giantLetters.length) return;
+    var avail = giant.clientWidth;
+    if (!avail) return;
+    var PROBE = 200;
+    giant.style.setProperty("--giant-size", PROBE + "px");
+    var natural = giantLetters.reduce(function (sum, el) { return sum + el.offsetWidth; }, 0);
+    if (!natural) return;
+    // fill the width, but never let the wordmark eat more than ~44% of the
+    // viewport height — otherwise it crops badly on short/laptop screens
+    var size = Math.min(PROBE * (avail / natural), window.innerHeight * 0.44);
+    giant.style.setProperty("--giant-size", Math.floor(size) + "px");
+  }
+
+  fitGiant();
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(fitGiant); }
+  var fitTimer;
+  window.addEventListener("resize", function () {
+    window.clearTimeout(fitTimer);
+    fitTimer = window.setTimeout(fitGiant, 120);
+  });
+
+  /* ---------------- view switching ---------------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  window.showView = function (name) {
+    document.querySelectorAll(".view").forEach(function (v) { v.classList.remove("active"); });
+    var el = document.getElementById("view-" + name);
+    if (el) el.classList.add("active");
+    tabs.forEach(function (t) { t.setAttribute("aria-selected", t.dataset.view === name ? "true" : "false"); });
+    window.scrollTo(0, 0);
+    if (name === "dash") growBars();
+    revealVisible();
+  };
+  tabs.forEach(function (t) { t.addEventListener("click", function () { showView(t.dataset.view); }); });
+
+  /* ---------------- scroll reveal ---------------- */
+  var io = null;
+  if ("IntersectionObserver" in window && !reduced) {
+    io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".obs").forEach(function (el) { io.observe(el); });
+  } else {
+    document.querySelectorAll(".obs").forEach(function (el) { el.classList.add("in"); });
+  }
+  function revealVisible() {
+    // anything already on screen in a newly-shown view should not wait
+    document.querySelectorAll(".view.active .obs:not(.in)").forEach(function (el) {
+      if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add("in");
+    });
+  }
+
+  /* ---------------- dashboard bars ---------------- */
+  var barsGrown = false;
+  function growBars() {
+    if (barsGrown) return;
+    barsGrown = true;
+    document.querySelectorAll(".fill").forEach(function (f, i) {
+      window.setTimeout(function () { f.style.width = f.dataset.w + "%"; }, reduced ? 0 : 60 * i);
+    });
+  }
+
+  /* ---------------- ticker ---------------- */
+  var tickerWords = ["Coffee shops", "Tattoo studios", "Breweries", "Record shops", "Barbershops",
+                     "Climbing gyms", "Bakeries", "Bookstores", "Taprooms", "Noodle shops"];
+  var track = document.getElementById("ticker");
+  var half = tickerWords.map(function (w) {
+    return '<span class="ticker-item">' + w + "</span>";
+  }).join("");
+  track.innerHTML = half + half; // duplicated so the -50% loop is seamless
+
+  /* ---------------- earnings calculator ---------------- */
+  var fEl = document.getElementById("followers");
+  var tEl = document.getElementById("traffic");
+  var rEl = document.getElementById("royalty");
+  var num = function (n) { return n.toLocaleString("en-US"); };
+  var usd = function (n) {
+    return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  };
+
+  function calc() {
+    var followers = +fEl.value, traffic = +tEl.value, rate = +rEl.value / 100;
+
+    document.getElementById("o-followers").textContent = num(followers);
+    document.getElementById("o-traffic").textContent = num(traffic);
+    document.getElementById("o-royalty").textContent = rEl.value + "%";
+
+    // Funnel model, playbook §6:
+    //   counter QR  ~1.5% of monthly foot traffic → storefront visits
+    //   Instagram   ~1% of followers → clicks per month
+    //   conversion  5% (warm affinity traffic)
+    //   AOV         $38 fixed
+    var sessions = (traffic * 30 * 0.015) + (followers * 0.01);
+    var orders   = sessions * 0.05;
+    var gmv      = orders * 38;
+
+    document.getElementById("o-sessions").textContent = num(Math.round(sessions));
+    document.getElementById("o-orders").textContent   = num(Math.round(orders));
+    document.getElementById("o-gmv").textContent      = usd(gmv);
+    document.getElementById("o-payout").textContent   = usd(gmv * rate);
+  }
+  [fEl, tEl, rEl].forEach(function (el) { el.addEventListener("input", calc); });
+  calc();
+
+  /* ---------------- storefront ---------------- */
+  var products = [
+    { n: "Sticker Sheet",       p: 6,  lane: "a", bg: "#a8762b", d: "Arrives by Aug 31" },
+    { n: "Enamel Pin",          p: 12, lane: "a", bg: "#7c4a22", d: "Arrives by Sep 1" },
+    { n: "Steam Mark Magnet",   p: 8,  lane: "a", bg: "#57181f", d: "Arrives by Aug 31" },
+    { n: "Ceramic Noodle Mug",  p: 22, lane: "a", bg: "#4a3a26", d: "Arrives by Sep 2" },
+    { n: "Canvas Tote",         p: 24, lane: "a", bg: "#4d4c33", d: "Arrives by Sep 2" },
+    { n: "Logo Tee",            p: 32, lane: "a", bg: "#2e2317", d: "Arrives by Sep 3" },
+    { n: "Est. 2019 Hoodie",    p: 54, lane: "b", bg: "#3e1016", d: "Drop — arrives by Sep 16" },
+    { n: "Embroidered Cap",     p: 28, lane: "b", bg: "#6d6a45", d: "Drop — arrives by Sep 14" }
+  ];
+  var grid = document.getElementById("pgrid");
+  products.forEach(function (p, i) {
+    var el = document.createElement("article");
+    el.className = "pcard";
+    el.innerHTML =
+      '<div class="pthumb" style="background:' + p.bg + '">' + p.n + "</div>" +
+      '<div class="pbody">' +
+        '<div class="pname">' + p.n + "</div>" +
+        '<div class="pprice">$' + p.p.toFixed(2) + "</div>" +
+        '<div class="plane"><span class="dot ' + p.lane + '"></span> ' +
+          (p.lane === "a" ? "Ships in 3–6 days" : "Small batch · 18–25 days") + "</div>" +
+        '<div class="pdate">' + p.d + "</div>" +
+        '<button class="padd" data-i="' + i + '">Add to cart</button>' +
+      "</div>";
+    grid.appendChild(el);
+  });
+
+  var cartN = 0, cartT = 0;
+  grid.addEventListener("click", function (e) {
+    var btn = e.target.closest(".padd");
+    if (!btn) return;
+    var p = products[+btn.dataset.i];
+    cartN += 1; cartT += p.p;
+    document.getElementById("cart-n").textContent = cartN;
+    document.getElementById("cart-t").textContent = cartT.toFixed(2);
+    btn.textContent = "Added ✓";
+    btn.classList.add("added");
+    window.setTimeout(function () { btn.textContent = "Add to cart"; btn.classList.remove("added"); }, 1200);
+  });
+
+  /* ---------------- design studio ---------------- */
+  var surfaces = [
+    { label: "T-shirt",     bg: "#2e2317" },
+    { label: "Canvas tote", bg: "#4d4c33" },
+    { label: "Enamel pin",  bg: "#57181f" },
+    { label: "Ceramic mug", bg: "#7c4a22" }
+  ];
+  var mocks = document.getElementById("mocks");
+  surfaces.forEach(function (s) {
+    var el = document.createElement("div");
+    el.className = "mock";
+    el.innerHTML =
+      '<div class="mock-surface" style="background:' + s.bg + '"><span class="slot">DAN</span></div>' +
+      '<div class="mock-label">' + s.label + "</div>";
+    mocks.appendChild(el);
+  });
+
+  var drop = document.getElementById("drop");
+  var logo = document.getElementById("logo");
+
+  function applyLogo(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      document.querySelectorAll(".mock-surface").forEach(function (surface) {
+        surface.innerHTML = "";
+        var img = document.createElement("img");
+        img.src = ev.target.result;
+        img.alt = "Uploaded logo on product mockup";
+        surface.appendChild(img);
+      });
+      drop.querySelector("h3").textContent = "Applied to all mockups";
+      drop.querySelector("p").textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  drop.addEventListener("click", function () { logo.click(); });
+  drop.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); logo.click(); }
+  });
+  logo.addEventListener("change", function () { applyLogo(logo.files[0]); });
+  ["dragenter", "dragover"].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add("hot"); });
+  });
+  ["dragleave", "drop"].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove("hot"); });
+  });
+  drop.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) applyLogo(e.dataTransfer.files[0]);
+  });
+})();
+</script>
+
+</body>
+</html>
