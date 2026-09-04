@@ -38,6 +38,28 @@ result. They get replaced with measured actuals after day 30/60 of launch.
 - The card art on the home screen is a CSS gradient placeholder. Swapping in a
   real Dao Artisan Noodle photo would meaningfully sharpen it.
 
+## Pages
+
+`index.html` is the source of truth. The two comparison pages are generated
+copies of it, each with its own view active and its own title, description and
+canonical URL:
+
+| URL | File |
+|---|---|
+| `/` | `index.html` |
+| `/vs-printful/` | `vs-printful/index.html` |
+| `/vs-clover/` | `vs-clover/index.html` |
+
+Regenerate them after editing `index.html`:
+
+```bash
+python3 build-pages.py
+```
+
+They are copies rather than hand-written pages so the styling can never drift.
+Do not edit anything under `vs-printful/` or `vs-clover/` directly — it will be
+overwritten on the next run.
+
 ## Local preview
 
 Open `index.html` in a browser, or:
