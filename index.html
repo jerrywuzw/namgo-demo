@@ -33,6 +33,12 @@
     --gold:        #a8762b;
     --good:        #46693f;
     --card:        #fbf8ec;
+    --foot-bg:     #241512;   /* the dark band that closes every page */
+    --foot-ink:    #f2eedc;
+    --foot-soft:   #b39c8e;
+    --foot-line:   rgba(242, 238, 220, .15);
+    --mock-bg:     #33291d;   /* one backdrop for every product tile */
+    --mock-art:    #f4efdd;
     --shade:       rgba(60, 30, 20, .13);
     --curtain:     #57181f;
 
@@ -59,6 +65,9 @@
       --gold:      #d5a253;
       --good:      #86b47c;
       --card:      #1e1713;
+    --foot-bg:   #0d0908;
+    --mock-bg:   #2b211b;
+    --mock-art:  #e8d5b8;
       --shade:     rgba(0, 0, 0, .5);
       --curtain:   #0e0a09;
     }
@@ -77,6 +86,9 @@
     --gold:      #d5a253;
     --good:      #86b47c;
     --card:      #1e1713;
+    --foot-bg:   #0d0908;
+    --mock-bg:   #2b211b;
+    --mock-art:  #e8d5b8;
     --shade:     rgba(0, 0, 0, .5);
     --curtain:   #0e0a09;
   }
@@ -195,7 +207,9 @@
       transform: none !important; opacity: 1 !important;
       clip-path: none !important; transition: none !important;
     }
-    .curtain-mark span, .curtain-bar, .ticker-track, .live-dot { animation: none !important; }
+    .curtain-mark span, .curtain-bar, .ticker-track, .live-dot, .cue svg,
+    .mock.sig, .hero-verticals .caret { animation: none !important; }
+    .tw-slot { transition: none !important; }
   }
 
   /* ============================================================
@@ -252,11 +266,14 @@
      HERO — the Kane composition
      ============================================================ */
   .hero {
+    /* four lines of display type, a card and the scroll cue all have to clear
+       the fold, so the headline size is a shared budget rather than a constant */
+    --hero-size: clamp(2.4rem, 6vw, 5.8rem);
     position: relative;
     min-height: calc(100svh - 76px);
     display: flex; flex-direction: column;
     overflow: hidden;
-    padding-top: clamp(1.5rem, 5vh, 4rem);
+    padding-top: clamp(.8rem, 2.4vh, 2rem);
   }
   .hero-top {
     flex: 1;
@@ -265,11 +282,6 @@
     padding: 0 clamp(1.1rem, 3vw, 2.4rem);
   }
   .hero-lead { max-width: 24ch; font-size: clamp(.95rem, 1.1vw, 1.06rem); color: var(--body); font-weight: 500; }
-  .hero-head {
-    text-align: center;
-    font-size: clamp(2.7rem, 6.4vw, 6.4rem);
-    letter-spacing: -.02em;
-  }
   .hero-aside { justify-self: end; text-align: right; min-width: 8ch; }
   .hero-aside .stat {
     font-family: var(--f-mono); font-size: 1.9rem; color: var(--ink); font-variant-numeric: tabular-nums;
@@ -277,57 +289,68 @@
   }
   .hero-aside .stat-k { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--body-soft); margin-top: .45rem; }
 
+  /* the nudge that says the page keeps going */
+  .cue {
+    display: flex; flex-direction: column; align-items: center; gap: .3rem;
+    margin: 0 auto; padding: clamp(.35rem, 1vh, .7rem) .6rem clamp(.3rem, .9vh, .6rem);
+    background: none; border: 0; cursor: pointer; font: inherit;
+    font-size: .6rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--body-soft); transition: color .2s var(--ease-io), opacity .3s;
+  }
+  .cue:hover { color: var(--ink); }
+  .cue svg {
+    width: 17px; height: 17px; fill: none; stroke: currentColor;
+    stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+    animation: cue-bob 1.9s var(--ease-io) infinite;
+  }
+  .cue.gone { opacity: 0; pointer-events: none; }
+  @keyframes cue-bob {
+    0%, 100% { transform: translateY(0); opacity: .7; }
+    50%      { transform: translateY(5px); opacity: 1; }
+  }
+
   /* label rail sitting on the cap-line of the giant wordmark */
   .rail {
-    display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem;
-    padding: 0 clamp(1.1rem, 3vw, 2.4rem) .5rem;
+    display: flex; justify-content: center; align-items: center; gap: 1rem;
+    padding: 0 clamp(1.1rem, 3vw, 2.4rem) .3rem;
     flex-wrap: wrap;
   }
-  .rail-group { display: flex; gap: clamp(1rem, 3vw, 2.6rem); flex-wrap: wrap; }
-  .rail-item { font-size: clamp(.66rem, .85vw, .8rem); font-weight: 700; letter-spacing: .13em; text-transform: uppercase; color: var(--ink); }
+  .rail-group { display: flex; gap: .5rem clamp(.9rem, 2vw, 1.8rem); flex-wrap: wrap; }
+  .rail-item { font-size: clamp(.62rem, .8vw, .76rem); font-weight: 700; letter-spacing: .13em; text-transform: uppercase; color: var(--ink); }
   .rail-item.paren { color: var(--body-soft); }
+  /* the equals sign is the point of the line, so let it carry the ink */
+  .rail-item.paren em { font-style: normal; color: var(--ink); padding: 0 .15em; }
 
-  /* giant edge-to-edge wordmark, clipped by the hero */
-  .giant-zone { position: relative; }
-  .giant {
-    --giant-size: 22vw;              /* JS refines this to fit exactly edge-to-edge */
-    display: flex; justify-content: space-between; align-items: flex-end;
-    padding: 0; margin-bottom: -.02em;
+  /* the card sits in the flow of the hero */
+  /* labels left, card centre, disclaimers right — the card holds the axis
+     and the two rails fill the space either side of it */
+  .hero-card {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: center; gap: clamp(1rem, 3vw, 2.5rem);
+    padding: clamp(.5rem, 1.4vh, 1rem) clamp(1.1rem, 3vw, 2.4rem) clamp(.45rem, 1.2vh, .9rem);
   }
-  .giant .mask { flex: 0 0 auto; }
-  .giant .mask > i {
-    font-family: var(--f-display); font-weight: 900; font-stretch: 112%;
-    font-size: var(--giant-size);
-    /* tight line box, with padding below the baseline so the mask's crop
-       lands in empty space instead of slicing the letterforms */
-    line-height: .8; padding-bottom: .1em;
-    color: var(--ink); letter-spacing: -.01em;
-  }
-
-  /* the floating card, overlapping the wordmark */
+  .rail-left  { justify-self: start; }
+  .rail-right { justify-self: end; text-align: right; }
   .shopcard {
-    position: absolute; z-index: 5;
-    left: 50%; transform: translateX(-50%);
-    bottom: -.75rem;
-    width: min(330px, 76vw);
+    position: relative; z-index: 5;
+    width: min(340px, 82vw);
     border-radius: 22px; overflow: hidden;
     background: var(--olive);
     box-shadow: 0 30px 60px -30px var(--shade);
     border: 1px solid var(--line);
     border-color: color-mix(in srgb, var(--ink) 18%, transparent);
   }
-  /* keep the intro transform from fighting the centring translate */
-  .shopcard.open { transform: translateX(-50%) scale(1.05); }
-  body.ready .shopcard.open { transform: translateX(-50%); }
+
 
   .shopcard-media {
-    aspect-ratio: 3 / 3.4;
+    /* content decides the height; a fixed ratio silently clips the button */
+    aspect-ratio: auto;
     background:
       radial-gradient(120% 70% at 72% 8%, rgba(255,240,210,.28), transparent 60%),
       linear-gradient(168deg, #6d6a45 0%, #4a3a26 52%, #2a2015 100%);
     position: relative;
-    display: flex; flex-direction: column; justify-content: space-between; gap: 1.1rem;
-    padding: .8rem .8rem 1rem;
+    display: flex; flex-direction: column; justify-content: space-between; gap: .7rem;
+    padding: .7rem .7rem .8rem;
   }
   /* three live SKUs, so the card carries information instead of empty space */
   .card-skus { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; }
@@ -366,11 +389,11 @@
     font-size: 1.35rem; text-transform: uppercase; color: #f6f2e2; margin-top: .2rem; line-height: 1;
   }
   .card-foot .role { font-size: .74rem; opacity: .8; margin-top: .25rem; }
-  .card-foot hr { border: 0; border-top: 1px solid rgba(246,242,226,.25); margin: .8rem 0; }
+  .card-foot hr { display: none; }
   .card-btn {
     width: 100%; border: 0; border-radius: 999px;
     background: #f6f2e2; color: #34281c;
-    padding: .7rem; font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    margin-top: .5rem; padding: .48rem; font-size: .66rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
     display: flex; align-items: center; justify-content: center; gap: .45rem;
     transition: transform .3s var(--ease-out-expo);
   }
@@ -540,17 +563,290 @@
   .drop h3 { font-size: 1.15rem; font-stretch: 86%; margin-top: .6rem; }
   .drop p { font-size: .85rem; margin-top: .35rem; }
   .note { display: flex; gap: .6rem; background: var(--ground-2); border-radius: 12px; padding: .85rem 1rem; font-size: .84rem; margin-top: .9rem; }
-  .mocks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-  .mock { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: .9rem; text-align: center; }
+  .mocks { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; }
+  .mock { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: .6rem; text-align: center; }
   .mock-surface {
-    aspect-ratio: 1; border-radius: 10px; display: grid; place-items: center; overflow: hidden; position: relative;
+    aspect-ratio: 4 / 3; border-radius: 10px; display: grid; place-items: center; overflow: hidden; position: relative;
   }
-  .mock-surface img { max-width: 46%; max-height: 46%; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,.35)); }
-  .mock-surface .slot {
-    font-family: var(--f-display); font-weight: 900; font-stretch: 88%;
-    font-size: 1.2rem; color: #f6f2e2; letter-spacing: .04em; opacity: .92;
+  /* the product itself, drawn as a silhouette on the tile */
+  .silo { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .mock-surface { background: var(--mock-bg); }
+  .silo path { fill: var(--mock-art); }
+  .silo .ln { fill: none; stroke: var(--mock-art); stroke-width: 3.4; stroke-linecap: round; }
+  /* the print area — placed per product, so the logo lands on the chest of a
+     tee, the front panel of a cap, the face of a ball marker */
+  .print {
+    position: absolute; display: grid; place-items: center;
+    border: 1px dashed rgba(47, 29, 20, .4); border-radius: 3px;
   }
-  .mock-label { font-size: .74rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--body-soft); margin-top: .65rem; }
+  .print.filled { border-color: transparent; }
+  .print img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .print .slot {
+    font-family: var(--f-body); font-weight: 700;
+    font-size: .48rem; letter-spacing: .1em; text-transform: uppercase;
+    color: rgba(47, 29, 20, .62); text-align: center; line-height: 1.15;
+  }
+  .trades { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .9rem; }
+  .trade {
+    font: inherit; font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    padding: .4rem .7rem; border-radius: 999px; cursor: pointer;
+    background: transparent; color: var(--body); border: 1px solid var(--line);
+    transition: background .2s var(--ease-io), color .2s, border-color .2s;
+  }
+  .trade:hover { border-color: var(--ink); color: var(--ink); }
+  .trade.is-on { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+  .mock.sig {
+    border-color: color-mix(in srgb, var(--gold) 45%, var(--line));
+    /* re-rendered on every trade switch, so this replays each time — the two
+       tiles that changed are the only ones that move */
+    animation: sig-swap .5s cubic-bezier(.22, 1, .36, 1) both;
+  }
+  @keyframes sig-swap {
+    from { opacity: 0; transform: translateY(9px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+  }
+  .mock.sig .mock-label::after {
+    content: "Signature shape"; display: block;
+    font-size: .56rem; letter-spacing: .1em; color: var(--gold); margin-top: .3rem;
+  }
+  .mock-label { font-size: .62rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--body-soft); margin-top: .5rem; }
+
+  /* ============================================================
+     PRICING
+     ============================================================ */
+  .tiers {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: clamp(.8rem, 1.6vw, 1.2rem);
+    /* stretch, not start: the cards carry different amounts of copy, and
+       .tier-note already pins itself to the bottom with margin-top:auto —
+       align-items:start was defeating that and leaving ragged bottoms */
+    align-items: stretch;
+  }
+  .tier {
+    position: relative;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: clamp(1.1rem, 2vw, 1.6rem);
+    display: flex; flex-direction: column; gap: .55rem;
+  }
+  /* the tier the model is actually built around */
+  .tier-lead {
+    border-color: color-mix(in srgb, var(--ink) 42%, var(--line));
+    box-shadow: 0 20px 44px -32px var(--shade);
+  }
+  .tier-flag {
+    position: absolute; top: -.62rem; left: clamp(1.1rem, 2vw, 1.6rem);
+    background: var(--ink); color: var(--on-ink);
+    font-size: .56rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+    padding: .28rem .6rem; border-radius: 999px;
+  }
+  .tier h3 { font-size: clamp(1.3rem, 2.2vw, 1.7rem); color: var(--ink); }
+  .tier-fit { font-size: .74rem; color: var(--body-soft); margin-top: -.3rem; }
+  .tier-price { display: flex; align-items: baseline; gap: .4rem; margin-top: .35rem; }
+  .tier-price .amt {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 96%;
+    font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1; color: var(--ink);
+  }
+  .tier-price .per { font-size: .72rem; color: var(--body-soft); }
+  .tier-earn {
+    font-size: .86rem; color: var(--body);
+    padding-bottom: .55rem; border-bottom: 1px solid var(--line);
+  }
+  .tier-earn strong { color: var(--ink); }
+  .tier-list { list-style: none; display: flex; flex-direction: column; gap: .38rem; }
+  .tier-list li { font-size: .82rem; color: var(--body); padding-left: 1rem; position: relative; }
+  .tier-list li::before {
+    content: ""; position: absolute; left: 0; top: .5em;
+    width: 5px; height: 5px; border-radius: 50%; background: var(--gold);
+  }
+  .mono { font-family: var(--f-mono); font-size: .92em; }
+  .tier-note { font-size: .76rem; color: var(--body-soft); margin-top: auto; padding-top: .5rem; }
+  .tier-math { color: var(--ink); font-weight: 500; }
+  .risk {
+    text-align: center; margin-top: clamp(1.2rem, 2.4vw, 1.8rem);
+    font-size: .72rem; font-weight: 700; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--body-soft);
+  }
+
+  /* the calculator's tier switch */
+  .tiersel { display: flex; gap: .35rem; margin: .1rem 0 .5rem; }
+  .tseg {
+    flex: 1; font: inherit; font-size: .7rem; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
+    padding: .5rem .6rem; border-radius: 999px;
+    background: transparent; color: var(--body); border: 1px solid var(--line);
+    transition: background .2s var(--ease-io), color .2s, border-color .2s;
+  }
+  .tseg:hover { border-color: var(--ink); color: var(--ink); }
+  .tseg.is-on { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+  .net {
+    margin-top: .3rem; font-size: .76rem; font-weight: 600;
+    color: var(--good); letter-spacing: .02em;
+  }
+
+  /* ============================================================
+     COMPARISON PAGES
+     ============================================================ */
+  .vs { border-top: 1px solid var(--line); }
+  .vs-row {
+    display: grid; grid-template-columns: minmax(140px, 1fr) 1.5fr 1.5fr;
+    gap: clamp(.8rem, 2vw, 1.6rem);
+    padding: .95rem 0; border-bottom: 1px solid var(--line);
+    align-items: start;
+  }
+  .vs-head {
+    border-bottom-color: var(--ink);
+    padding-bottom: .6rem;
+  }
+  .vs-head .vs-them, .vs-head .vs-us {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 96%;
+    font-size: 1.05rem; text-transform: uppercase; letter-spacing: .02em;
+  }
+  .vs-head .vs-them { color: var(--body-soft); }
+  .vs-head .vs-us { color: var(--ink); }
+  .vs-k {
+    font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--body-soft); padding-top: .15rem;
+  }
+  .vs-them { font-size: .88rem; color: var(--body-soft); }
+  .vs-us   { font-size: .88rem; color: var(--body); }
+  .vs-us strong, .vs-us .mono { color: var(--ink); }
+  .vs-closer {
+    max-width: 62ch; margin: clamp(1.6rem, 3vw, 2.4rem) 0 0;
+    font-size: 1rem; color: var(--ink);
+  }
+  .vs-cta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .8rem;
+    margin: clamp(1.4rem, 2.6vw, 2rem) 0 clamp(1.6rem, 3vw, 2.4rem);
+  }
+
+  /* footer navigation */
+  .foot-links {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: .5rem clamp(1rem, 2.4vw, 2rem);
+    padding-top: 2.2rem;
+  }
+  .foot-link {
+    font: inherit; font-size: .74rem; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    background: none; border: 0; padding: .2rem 0; cursor: pointer;
+    color: var(--ink); border-bottom: 1px solid var(--line);
+    transition: border-color .2s var(--ease-io), color .2s;
+  }
+  .foot-link:hover { border-color: var(--ink); }
+  .foot-links + .foot { border-top: 0; padding-top: 1rem; }
+
+  @media (max-width: 760px) {
+    .vs-row { grid-template-columns: 1fr; gap: .3rem; padding: .85rem 0; }
+    .vs-head { display: none; }
+    .vs-them::before { content: "Them — "; font-weight: 700; letter-spacing: .06em; }
+    .vs-us::before   { content: "NAMGO — "; font-weight: 700; letter-spacing: .06em; color: var(--ink); }
+  }
+
+  /* ============================================================
+     THE VERTICALS TYPEWRITER
+     One word doing the work of a list — it names the reader's own trade
+     instead of printing a directory.
+     ============================================================ */
+  .hero-mid { display: grid; justify-items: center; gap: clamp(.3rem, 1vh, .6rem); }
+  /* the same size as the headline above it — one token drives both, so they
+     can never drift apart */
+  .hero-verticals {
+    text-align: center;
+    font-size: var(--hero-size);
+    letter-spacing: -.02em; line-height: .88;
+    color: var(--body-soft);
+  }
+  .hero-verticals .tw { color: var(--ink); }
+  /* The slot is as wide as the longest trade, so the line's total width never
+     changes and "for" stays put while the word types inside it. Measured in
+     JS because the width depends on the loaded webfont and a vw font-size. */
+  /* The slot is sized to the whole of the word about to be typed, so nothing
+     shifts while it types — the letters simply appear. It resizes once between
+     words, and that single eased change is the only movement. */
+  .tw-slot {
+    display: inline-block; text-align: left;
+    min-width: var(--tw-w, 0px);
+    transition: min-width .42s cubic-bezier(.22, 1, .36, 1);
+  }
+  .tw-line { display: inline-block; }
+  .hero-verticals .caret {
+    display: inline-block; width: .06em; height: .74em;
+    background: var(--ink); margin-left: .06em;
+    animation: caret 1.05s steps(1) infinite;
+  }
+  @keyframes caret { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+
+  /* ============================================================
+     SITE FOOTER
+     ============================================================ */
+  .site-foot {
+    background: var(--foot-bg); color: var(--foot-soft);
+    padding: clamp(2.6rem, 6vw, 4.5rem) 0 clamp(1.4rem, 3vw, 2.2rem);
+    margin-top: auto;
+  }
+  .foot-grid {
+    /* one row of vertical sections, brand a little wider than the rest —
+       auto-fit orphaned the last section onto its own line */
+    display: grid; grid-template-columns: 1.25fr repeat(4, 1.15fr);
+    gap: clamp(1.2rem, 2.4vw, 2rem);
+    padding-bottom: clamp(1.8rem, 4vw, 2.8rem);
+    border-bottom: 1px solid var(--foot-line);
+  }
+  /* every section is its own vertical stack */
+  .foot-col { display: flex; flex-direction: column; align-items: flex-start; gap: .7rem; }
+  .foot-h {
+    font-size: .68rem; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--foot-ink); margin-bottom: .1rem;
+  }
+  .foot-a {
+    font: inherit; font-size: .84rem; text-align: left;
+    background: none; border: 0; padding: 0; cursor: pointer;
+    color: var(--foot-soft); text-decoration: none;
+    transition: color .2s var(--ease-io);
+  }
+  .foot-a:hover { color: var(--foot-ink); }
+  .foot-mark {
+    font-family: var(--f-display); font-weight: 900; font-stretch: 112%;
+    font-size: 1.5rem; letter-spacing: .04em; color: var(--foot-ink);
+  }
+  .foot-tag {
+    font-size: .68rem; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--foot-soft); margin-top: -.35rem;
+  }
+  .foot-blurb { font-size: .82rem; line-height: 1.55; max-width: 34ch; }
+  .foot-micro { font-size: .72rem; color: var(--foot-soft); opacity: .75; }
+
+  .foot-p { font-size: .78rem; line-height: 1.6; }
+
+  /* the same disclosure idiom as the FAQ, at footer scale */
+  .foot-det { border-bottom: 1px solid var(--foot-line); }
+  .foot-det summary {
+    list-style: none; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center; gap: .8rem;
+    padding: .5rem 0; font-size: .84rem; color: var(--foot-soft);
+    transition: color .2s var(--ease-io);
+  }
+  .foot-det summary::-webkit-details-marker { display: none; }
+  .foot-det summary:hover { color: var(--foot-ink); }
+  .foot-det summary::after { content: "+"; font-size: 1rem; color: var(--gold); }
+  .foot-det[open] summary { color: var(--foot-ink); }
+  .foot-det[open] summary::after { content: "–"; }
+  .foot-det .foot-p { padding-bottom: .7rem; }
+  .foot-policies { gap: 0; }
+  .foot-policies .foot-h { margin-bottom: .55rem; }
+  .foot-base { padding-top: clamp(1.1rem, 2.4vw, 1.6rem); }
+  .foot-base p { font-size: .72rem; color: var(--foot-soft); opacity: .8; }
+
+  @media (max-width: 1180px) {
+    .foot-grid { grid-template-columns: repeat(3, 1fr); }
+    .foot-brand { grid-column: 1 / -1; }
+  }
+  @media (max-width: 680px) {
+    .foot-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 460px) {
+    .foot-grid { grid-template-columns: 1fr; }
+  }
 
   /* ============================================================
      FOOT
@@ -560,12 +856,30 @@
   /* ============================================================
      RESPONSIVE
      ============================================================ */
+  /* three product tiles across stops working once they drop under ~150px */
+  @media (max-width: 560px) {
+    .mocks { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 900px) {
+    .tiers { grid-template-columns: 1fr; }
+    .tier-note { margin-top: 0; }
+  }
+
   @media (max-width: 980px) {
     .calc, .dash2, .studio { grid-template-columns: 1fr; }
     .three { grid-template-columns: 1fr; }
     .pgrid, .stats { grid-template-columns: repeat(2, 1fr); }
-    .hero-aside { display: none; }
+    /* both asides carry a claim now ($0 and the risk line), so they stay
+       visible and centre instead of being dropped */
+    .hero-aside { justify-self: center; text-align: center; min-width: 0; }
     .hero-top { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+
+    /* the card row stops being three columns and becomes a stack */
+    .hero-card { grid-template-columns: 1fr; justify-items: center; gap: clamp(.9rem, 3vw, 1.3rem); }
+    .rail-left, .rail-right { justify-self: center; text-align: center; }
+    .rail-group { justify-content: center; }
+    .rail-left { order: 3; }
     .hero-lead { max-width: 30ch; }
   }
   @media (max-width: 760px) {
@@ -583,7 +897,7 @@
     /* the overlap composition doesn't survive a narrow column — restack it */
     .hero { min-height: 0; padding-top: 1.2rem; }
     .hero-top { flex: 0 0 auto; gap: 1.2rem; }
-    .hero-head { font-size: clamp(2.4rem, 12.5vw, 4rem); }
+    .hero-verticals { font-size: clamp(2.2rem, 11vw, 3.6rem); }
     .hero-lead { max-width: 34ch; }
 
     .shopcard,
@@ -596,9 +910,7 @@
     .shopcard-media { aspect-ratio: auto; }
     .card-skus { gap: .5rem; }
 
-    .rail { padding-top: 1.4rem; }
     .rail-group:last-child { display: none; }
-    .giant { margin-bottom: 0; }
   }
 </style>
 </head>
@@ -635,62 +947,57 @@
     <div class="hero-top">
       <p class="hero-lead rise" style="--d:640ms">Your customers already want your merch. You just have no practical way to sell it. We're the inventory.</p>
 
-      <h1 class="hero-head disp cond">
-        <span class="mask"><i style="--d:300ms">Sell merch.</i></span>
-        <span class="mask"><i style="--d:400ms">Stock nothing.</i></span>
-      </h1>
+      <div class="hero-mid">
+        <h1 class="hero-verticals disp cond rise" style="--d:400ms">Merch and AI agents<br><span class="tw-line">for <span class="tw-slot"><span class="tw" id="tw"></span><span class="caret" aria-hidden="true"></span></span></span></h1>
+      </div>
 
       <div class="hero-aside rise" style="--d:540ms">
+        <span class="rail-item paren">No inventory <em>=</em> little to no risk</span>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="rail-group rail-left">
+        <span class="rail-item rise" style="--d:950ms">Tees</span>
+        <span class="rail-item rise" style="--d:990ms">Caps</span>
+        <span class="rail-item rise" style="--d:1030ms">Stickers</span>
+        <span class="rail-item rise" style="--d:1070ms">Totes</span>
+        <span class="rail-item rise" style="--d:1110ms">Signature shapes</span>
+      </div>
+
+        <div class="shopcard open" style="--d:640ms">
+          <div class="shopcard-media">
+            <div class="card-chiprow">
+              <span class="chip"><span class="live-dot"></span> Storefront live</span>
+              <span class="chip chip-round" aria-hidden="true">↗</span>
+            </div>
+
+            <div class="card-skus">
+              <div class="sku"><div class="sku-n">Logo<br>tee</div><div class="sku-p">$32</div></div>
+              <div class="sku"><div class="sku-n">Embroidered<br>cap</div><div class="sku-p">$28</div></div>
+              <div class="sku"><div class="sku-n">Ramen<br>bowl</div><div class="sku-p">$26</div></div>
+            </div>
+
+            <div class="card-foot">
+              <div class="kicker">Customer zero</div>
+              <div class="shopname">Dao Artisan Noodle</div>
+              <div class="role">31 units sold this month · $148 royalty</div>
+              <hr>
+              <button class="card-btn" onclick="showView('store')">Visit storefront →</button>
+            </div>
+          </div>
+        </div>
+
+      <div class="hero-aside rail-right rise" style="--d:1150ms">
         <div class="stat">$0</div>
         <div class="stat-k">Up front, ever</div>
       </div>
     </div>
 
-    <div class="rail">
-      <div class="rail-group">
-        <span class="rail-item rise" style="--d:950ms">Stickers</span>
-        <span class="rail-item rise" style="--d:990ms">Pins</span>
-        <span class="rail-item rise" style="--d:1030ms">Totes</span>
-        <span class="rail-item rise" style="--d:1070ms">Tees</span>
-      </div>
-      <div class="rail-group">
-        <span class="rail-item paren rise" style="--d:1110ms">(No inventory)</span>
-        <span class="rail-item paren rise" style="--d:1150ms">(No risk)</span>
-      </div>
-    </div>
-
-    <div class="giant-zone">
-      <div class="giant" aria-label="NAMGO">
-        <span class="mask"><i style="--d:540ms">N</i></span>
-        <span class="mask"><i style="--d:600ms">A</i></span>
-        <span class="mask"><i style="--d:660ms">M</i></span>
-        <span class="mask"><i style="--d:720ms">G</i></span>
-        <span class="mask"><i style="--d:780ms">O</i></span>
-      </div>
-
-      <div class="shopcard open" style="--d:640ms">
-        <div class="shopcard-media">
-          <div class="card-chiprow">
-            <span class="chip"><span class="live-dot"></span> Storefront live</span>
-            <span class="chip chip-round" aria-hidden="true">↗</span>
-          </div>
-
-          <div class="card-skus">
-            <div class="sku"><div class="sku-n">Sticker<br>sheet</div><div class="sku-p">$6</div></div>
-            <div class="sku"><div class="sku-n">Enamel<br>pin</div><div class="sku-p">$12</div></div>
-            <div class="sku"><div class="sku-n">Canvas<br>tote</div><div class="sku-p">$24</div></div>
-          </div>
-
-          <div class="card-foot">
-            <div class="kicker">Customer zero</div>
-            <div class="shopname">Dao Artisan Noodle</div>
-            <div class="role">31 units sold this month · $148 royalty</div>
-            <hr>
-            <button class="card-btn" onclick="showView('store')">Visit storefront →</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <button class="cue" id="cue" aria-label="Scroll to how it works">
+      <span>How it works</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v14M6 13l6 6 6-6"/></svg>
+    </button>
   </section>
 
   <div class="ticker" aria-hidden="true">
@@ -735,9 +1042,12 @@
             <p class="hint">Rough daily customer count. It doesn't need to be exact.</p>
           </div>
           <div class="field">
-            <div class="field-top"><label for="royalty">Royalty tier</label><output id="o-royalty">15%</output></div>
-            <input type="range" id="royalty" min="10" max="20" step="1" value="15">
-            <p class="hint">Standard tier is 10–20% of retail. Premium and custom run 25–50%.</p>
+            <div class="field-top"><label>Tier</label><output id="o-tier">Storefront · 15% of retail</output></div>
+            <div class="tiersel" id="tiersel" role="group" aria-label="Pricing tier">
+              <button type="button" class="tseg is-on" data-tier="storefront">Storefront</button>
+              <button type="button" class="tseg" data-tier="platform">Platform</button>
+            </div>
+            <p class="hint">Storefront pays 15% of retail and costs nothing. Platform pays the first $200 of merch in full, then 25%, against a $199 monthly fee.</p>
           </div>
         </div>
 
@@ -745,6 +1055,7 @@
           <div class="payout">
             <div class="k">Estimated monthly royalty</div>
             <div class="v" id="o-payout">$0</div>
+            <div class="net" id="o-net" hidden></div>
           </div>
           <div class="subs">
             <div class="sub"><div class="k">Sessions / mo</div><div class="v" id="o-sessions">0</div></div>
@@ -755,6 +1066,64 @@
           <p class="assump"><strong>Assumptions, all labeled:</strong> counter QR converts ~1.5% of monthly foot traffic into storefront visits; Instagram drives ~1% of followers as clicks per month; visits convert to orders at 5% (warm affinity traffic, vs. 1.4–2.7% typical ecommerce); AOV fixed at $38. Planning estimates from our funnel model — actuals get measured from day one and will move this number.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="sec" id="pricing">
+    <div class="wrap">
+      <div class="sec-head obs">
+        <p class="micro">Three tiers, one operation</p>
+        <h2 class="disp cond">What it costs the shop</h2>
+        <p>Every tier runs on the same manufacturing and fulfillment. What changes is how much of the shop's digital presence we own, and how the shop gets paid.</p>
+      </div>
+
+      <div class="tiers">
+        <article class="tier obs">
+          <h3 class="disp cond">Storefront</h3>
+          <p class="tier-fit">Any qualifying shop</p>
+          <div class="tier-price"><span class="amt">$0</span> <span class="per">per month</span></div>
+          <p class="tier-earn">Shop earns <strong>15% of retail</strong> on every sale</p>
+          <ul class="tier-list">
+            <li>Merch lives at <span class="mono">namgo.co/shopname</span></li>
+            <li>Website not included</li>
+            <li>Two design revision rounds, then paid</li>
+            <li>Email support</li>
+          </ul>
+          <p class="tier-note">The shop licenses its brand and does nothing else. If nothing sells, it is out the cost of a counter card.</p>
+        </article>
+
+        <article class="tier tier-lead obs">
+          <span class="tier-flag">Most shops upgrade here</span>
+          <h3 class="disp cond">Platform</h3>
+          <p class="tier-fit">Shops with no website, or a bad one</p>
+          <div class="tier-price"><span class="amt">$199</span> <span class="per">per month</span></div>
+          <p class="tier-earn">First <strong>$200 a month in full</strong>, then <strong>25% of retail</strong></p>
+          <ul class="tier-list">
+            <li>Merch lives on the shop's own domain</li>
+            <li>Website built and maintained by NAMGO</li>
+            <li>Unlimited design revisions</li>
+            <li>Email support plus a monthly review</li>
+          </ul>
+          <p class="tier-note tier-math">$200 of merch a month makes the website free. $500 a month makes it free and pays $275 on top.</p>
+        </article>
+
+        <article class="tier obs">
+          <h3 class="disp cond">Partner</h3>
+          <p class="tier-fit">Multi-location and licensing</p>
+          <div class="tier-price"><span class="amt">Custom</span> <span class="per">retainer</span></div>
+          <p class="tier-earn">Negotiated, with a <strong>25% floor</strong></p>
+          <ul class="tier-list">
+            <li>Either home, plus the shop's owned channels</li>
+            <li>Custom build and development</li>
+            <li>Dedicated designer</li>
+            <li>Named account lead</li>
+          </ul>
+          <p class="tier-note">Rollouts, licensing, custom product and brand systems. Under 5% of shops by design.</p>
+        </article>
+      </div>
+
+      <p class="risk obs">No cost on Storefront · No inventory · No lock-in · Cancel anytime</p>
     </div>
   </section>
 
@@ -786,7 +1155,7 @@
     </div>
   </section>
 
-  <div class="wrap"><p class="foot">Demo build for partner conversations. Figures are planning assumptions, not commitments. · NAMGO</p></div>
+
 </main>
 
 <!-- ============================ STOREFRONT ============================ -->
@@ -868,7 +1237,6 @@
     <div class="sec-head" style="padding-top:clamp(2rem,4vw,3rem)">
       <p class="micro">Design studio</p>
       <h2 class="disp cond">Upload a logo. Watch it land.</h2>
-      <p>This is the moment that closes a demo call — drop in the owner's real logo and it appears on the product line while they're still on the phone.</p>
     </div>
 
     <div class="studio">
@@ -882,10 +1250,207 @@
         <div class="note">🔎 <span>Every design passes human QA and an IP screen before it reaches the shop. This preview is instant; the real thing takes about 48 hours.</span></div>
         <div class="note">✏️ <span>Two free revision rounds included. A third moves the shop to the premium tier.</span></div>
       </div>
-      <div class="mocks" id="mocks"></div>
+      <div>
+        <p class="micro" style="margin-bottom:.6rem">Choose a business type — watch the signature shapes change</p>
+        <div class="trades" id="trades">
+          <button class="trade is-on" data-trade="noodle">Noodle shop</button>
+          <button class="trade" data-trade="bar">Bar</button>
+          <button class="trade" data-trade="creamery">Ice cream</button>
+          <button class="trade" data-trade="coffee">Coffee</button>
+          <button class="trade" data-trade="barber">Barbershop</button>
+          <button class="trade" data-trade="golf">Golf course</button>
+        </div>
+        <div class="mocks" id="mocks"></div>
+      </div>
     </div>
   </div>
 </main>
+
+<!-- ============================ NAMGO VS. PRINTFUL ============================ -->
+<main id="view-vs-printful" class="view">
+  <div class="wrap">
+    <div class="sec-head" style="padding-top:clamp(2rem,4vw,3rem)">
+      <p class="micro">Vendor side</p>
+      <h2 class="disp cond">NAMGO vs. Printful</h2>
+      <p>Printful is a supplier. It sells fulfillment to someone who has already decided to sell merch, built the store, made the designs and found the buyers. That is the work. NAMGO does that work.</p>
+    </div>
+
+    <div class="vs">
+      <div class="vs-row vs-head">
+        <div class="vs-k"></div>
+        <div class="vs-them">Printful</div>
+        <div class="vs-us">NAMGO</div>
+      </div>
+        <div class="vs-row">
+          <div class="vs-k">What it is</div>
+          <div class="vs-them">A print-on-demand fulfillment API. A supplier.</div>
+          <div class="vs-us">The inventory layer. We design it, make it, ship it, and handle the customer.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Cost to the shop</div>
+          <div class="vs-them">Free tier; Growth at $24.99 a month.</div>
+          <div class="vs-us">$0 on Storefront. $199 on Platform, which includes the website.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Per unit</div>
+          <div class="vs-them">Blanks run $9–29 a tee, paid per order by the shop.</div>
+          <div class="vs-us">Nothing. NAMGO is merchant of record and carries production and freight.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Who designs the product</div>
+          <div class="vs-them">The shop, or whoever it hires.</div>
+          <div class="vs-us">NAMGO. Logo in, full product line out, human QA before it ships.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Who picks what to sell</div>
+          <div class="vs-them">The shop, from a generic blank catalog.</div>
+          <div class="vs-us">NAMGO, by category — a beer mug for the bar, a cone magnet for the creamery.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Who builds the storefront</div>
+          <div class="vs-them">The shop.</div>
+          <div class="vs-us">Included. <span class="mono">namgo.co/shopname</span>, live in 72 hours.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Who drives the traffic</div>
+          <div class="vs-them">The shop.</div>
+          <div class="vs-us">Counter QR, the shop's social, our marketplace pages and SEO.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Who carries the risk</div>
+          <div class="vs-them">The shop fronts cash on every order.</div>
+          <div class="vs-us">NAMGO. If nothing sells, the shop is out the cost of a counter card.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">What the shop earns</div>
+          <div class="vs-them">Whatever is left after blanks, fees and its own time.</div>
+          <div class="vs-us">15% of retail on Storefront. First $200 a month in full, then 25%, on Platform.</div>
+        </div>
+      </div>
+
+    <p class="vs-closer">Printful, Printify and every printer like them sell a tool or a batch. None of them designs the product, drives the traffic, or carries the inventory risk. NAMGO does all three, which is why the shop's cost is zero.</p>
+
+    <div class="vs-cta">
+      <button class="pill" onclick="showView('studio')">See the design studio</button>
+      <button class="foot-link" onclick="showView('vs-clover')">NAMGO vs. Clover</button>
+      <button class="foot-link" onclick="showView('home')">Back to home</button>
+    </div>
+
+    <p class="foot">Competitor details as recorded in the NAMGO Partner Playbook, August 2026. Verify current pricing before quoting a shop.</p>
+  </div>
+</main>
+
+<!-- ============================ NAMGO VS. CLOVER ============================ -->
+<main id="view-vs-clover" class="view">
+  <div class="wrap">
+    <div class="sec-head" style="padding-top:clamp(2rem,4vw,3rem)">
+      <p class="micro">Technology side</p>
+      <h2 class="disp cond">NAMGO vs. Clover</h2>
+      <p>Clover sells the register, and its website product is sold on top of that commitment. The shops we serve already have a register they like. What they do not have is a way to sell the shirt their regulars keep asking for.</p>
+    </div>
+
+    <div class="vs">
+      <div class="vs-row vs-head">
+        <div class="vs-k"></div>
+        <div class="vs-them">Clover / BentoBox</div>
+        <div class="vs-us">NAMGO</div>
+      </div>
+        <div class="vs-row">
+          <div class="vs-k">What it is</div>
+          <div class="vs-them">A POS and payments system (Fiserv). Its website product, BentoBox, is sold to Clover POS customers.</div>
+          <div class="vs-us">A merch revenue line, plus an optional managed website.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Pricing</div>
+          <div class="vs-them">BentoBox pricing is not published — quote only.</div>
+          <div class="vs-us">Published. $0 Storefront, $199 a month Platform, custom retainer for Partner.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">What adopting it costs</div>
+          <div class="vs-them">Taking the website means replacing the register.</div>
+          <div class="vs-us">Nothing to replace. It sits alongside whatever POS the shop already runs.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Does it sell merch</div>
+          <div class="vs-them">No.</div>
+          <div class="vs-us">That is the entire product.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Who owns the domain</div>
+          <div class="vs-them">The shop's site lives inside the vendor's template system.</div>
+          <div class="vs-us">The shop's own domain on Platform, built and maintained by NAMGO.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Direction of money</div>
+          <div class="vs-them">The shop pays for software every month.</div>
+          <div class="vs-us">The shop gets paid on every sale, and the merch can pay for the website.</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-k">Design service</div>
+          <div class="vs-them">Templates.</div>
+          <div class="vs-us">Logo upload, AI generation across the product line, unlimited revisions on Platform.</div>
+        </div>
+      </div>
+
+    <p class="vs-closer">BentoBox, Owner.com, Popmenu, Toast and Square Online all sell the same thing: a website, billed monthly, forever. Not one of them sells merch. NAMGO is the only one that pays the shop instead of charging it.</p>
+
+    <div class="vs-cta">
+      <button class="pill" onclick="showView('studio')">See the design studio</button>
+      <button class="foot-link" onclick="showView('vs-printful')">NAMGO vs. Printful</button>
+      <button class="foot-link" onclick="showView('home')">Back to home</button>
+    </div>
+
+    <p class="foot">Competitor details as recorded in the NAMGO Partner Playbook, August 2026. Verify current pricing before quoting a shop.</p>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col foot-brand">
+        <div class="foot-mark">NAMGO</div>
+        <p class="foot-tag">Merch without inventory</p>
+        <p class="foot-blurb">We design it, manufacture it, ship it, and handle your customers. The shop carries no stock and fronts no cash.</p>
+      </div>
+
+      <nav class="foot-col" aria-labelledby="fh-product">
+        <h2 class="foot-h" id="fh-product">Product</h2>
+        <button class="foot-a" onclick="showView('store')">Storefront</button>
+        <button class="foot-a" onclick="showView('dash')">Dashboard</button>
+        <button class="foot-a" onclick="showView('studio')">Design Studio</button>
+      </nav>
+
+      <nav class="foot-col" aria-labelledby="fh-compare">
+        <h2 class="foot-h" id="fh-compare">Compare</h2>
+        <button class="foot-a" onclick="showView('vs-printful')">NAMGO vs. Printful</button>
+        <button class="foot-a" onclick="showView('vs-clover')">NAMGO vs. Clover</button>
+      </nav>
+
+      <nav class="foot-col" aria-labelledby="fh-connect">
+        <h2 class="foot-h" id="fh-connect">Connect</h2>
+        <button class="foot-a" onclick="showView('home')">Book a demo</button>
+        <a class="foot-a" href="https://www.instagram.com/daoartisannoodle/" target="_blank" rel="noopener noreferrer">@daoartisannoodle</a>
+        <p class="foot-micro">Dao Artisan Noodle, customer zero</p>
+      </nav>
+
+      <section class="foot-col foot-policies">
+        <h2 class="foot-h">Policies</h2>
+        <details class="foot-det">
+          <summary>Privacy</summary>
+          <p class="foot-p">No cookies, no analytics, nothing sent to a server. A logo you drop into the Design Studio is read in your browser and never leaves your device. In production NAMGO is merchant of record, and order data is processed only to make, ship, and support what a fan bought.</p>
+        </details>
+        <details class="foot-det">
+          <summary>Accessibility</summary>
+          <p class="foot-p">Built to WCAG 2.2 AA — keyboard operable, visible focus, text alternatives for imagery, and colour held above contrast minimums. Every animation stops when your system asks for reduced motion. If something here is unusable for you, tell us and we will fix it rather than explain it.</p>
+        </details>
+      </section>
+    </div>
+
+    <div class="foot-base">
+      <p>© 2026 NAMGO · Demo build for partner conversations. Figures are planning assumptions, not commitments.</p>
+    </div>
+  </div>
+</footer>
 
 <script>
 (function () {
@@ -909,34 +1474,97 @@
     }, 900);
   }
 
-  /* ---------------- fit the giant wordmark edge-to-edge ----------------
-     Measure the letters at a known size, then scale the type so their
-     natural width equals the container. Re-run once the webfont lands
-     and on resize, so it holds even if Archivo never loads.           */
-  var giant = document.querySelector(".giant");
-  var giantLetters = giant ? Array.prototype.slice.call(giant.querySelectorAll(".mask > i")) : [];
-
-  function fitGiant() {
-    if (!giant || !giantLetters.length) return;
-    var avail = giant.clientWidth;
-    if (!avail) return;
-    var PROBE = 200;
-    giant.style.setProperty("--giant-size", PROBE + "px");
-    var natural = giantLetters.reduce(function (sum, el) { return sum + el.offsetWidth; }, 0);
-    if (!natural) return;
-    // fill the width, but never let the wordmark eat more than ~44% of the
-    // viewport height — otherwise it crops badly on short/laptop screens
-    var size = Math.min(PROBE * (avail / natural), window.innerHeight * 0.44);
-    giant.style.setProperty("--giant-size", Math.floor(size) + "px");
+  /* ---------------- scroll cue ---------------- */
+  var cue = document.getElementById("cue");
+  if (cue) {
+    cue.addEventListener("click", function () {
+      var target = document.querySelector("#view-home .sec");
+      if (target) target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    });
+    // it has done its job the moment the page moves
+    window.addEventListener("scroll", function () {
+      cue.classList.toggle("gone", window.scrollY > 40);
+    }, { passive: true });
   }
 
-  fitGiant();
-  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(fitGiant); }
-  var fitTimer;
-  window.addEventListener("resize", function () {
-    window.clearTimeout(fitTimer);
-    fitTimer = window.setTimeout(fitGiant, 120);
-  });
+  /* ---------------- the verticals typewriter ----------------
+     Types a trade, holds it, deletes it, moves to the next. Under reduced
+     motion it simply prints one and stops. */
+  var twEl = document.getElementById("tw");
+  var TRADES = ["coffee shops", "tattoo studios", "breweries", "barbershops",
+                "bakeries", "climbing gyms", "noodle shops", "golf courses"];
+  /* Reserve the widest word up front. Without this the centred line reflows
+     on every keystroke and the word before it slides back and forth. */
+  var twWidths = {}, twCaretExtra = 0;
+
+  /* Give the slot the width of the word that is about to be typed. The word
+     then types into a box that already fits it, so the line holds still and
+     the finished word lands centred under the line above. */
+  function setSlotFor(word) {
+    var slot = document.querySelector(".tw-slot");
+    if (!slot || !twWidths[word]) return;
+    slot.style.setProperty("--tw-w", Math.ceil(twWidths[word] + twCaretExtra) + "px");
+  }
+
+  function sizeTwSlot() {
+    var slot = document.querySelector(".tw-slot");
+    if (!slot || !twEl) return;
+    var cs = getComputedStyle(twEl);
+    var probe = document.createElement("span");
+    probe.style.cssText = "position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre";
+    probe.style.fontFamily = cs.fontFamily;
+    probe.style.fontSize = cs.fontSize;
+    probe.style.fontWeight = cs.fontWeight;
+    probe.style.fontStretch = cs.fontStretch;
+    probe.style.letterSpacing = cs.letterSpacing;
+    // the line renders uppercase — measuring the lowercase source under-reads
+    // it, and the slot then grows on the widest words and shunts "for" sideways
+    probe.style.textTransform = cs.textTransform;
+    document.body.appendChild(probe);
+    TRADES.forEach(function (w) {
+      probe.textContent = w;
+      twWidths[w] = probe.getBoundingClientRect().width;
+    });
+    probe.remove();
+    // the caret sits inside the slot, so its box counts toward the content
+    var caret = slot.querySelector(".caret");
+    twCaretExtra = 0;
+    if (caret) {
+      var ccs = getComputedStyle(caret);
+      twCaretExtra = (parseFloat(ccs.width) || 0) + (parseFloat(ccs.marginLeft) || 0);
+    }
+    setSlotFor(TRADES[twIdx]);
+  }
+
+  var twIdx = 0, twChars = 0, twDeleting = false;
+  if (twEl) {
+    sizeTwSlot();
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(sizeTwSlot); }
+    window.addEventListener("resize", function () {
+      window.clearTimeout(window.__twTimer);
+      window.__twTimer = window.setTimeout(sizeTwSlot, 150);
+    }, { passive: true });
+
+    if (reduced) {
+      twEl.textContent = TRADES[0];
+      setSlotFor(TRADES[0]);
+    } else {
+      (function typeTick() {
+        var word = TRADES[twIdx];
+        twChars += twDeleting ? -1 : 1;
+        twEl.textContent = word.slice(0, twChars);
+        var wait = twDeleting ? 38 : 62;
+        if (!twDeleting && twChars === word.length) {
+          twDeleting = true; wait = 1700;            // hold on the finished word
+        } else if (twDeleting && twChars === 0) {
+          twDeleting = false; wait = 380;
+          twIdx = (twIdx + 1) % TRADES.length;
+          setSlotFor(TRADES[twIdx]);   // resize during the pause, before typing
+        }
+        window.setTimeout(typeTick, wait);
+      })();
+    }
+  }
 
   /* ---------------- view switching ---------------- */
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
@@ -992,18 +1620,18 @@
   /* ---------------- earnings calculator ---------------- */
   var fEl = document.getElementById("followers");
   var tEl = document.getElementById("traffic");
-  var rEl = document.getElementById("royalty");
+  var tierSel = document.getElementById("tiersel");
+  var tier = "storefront";
   var num = function (n) { return n.toLocaleString("en-US"); };
   var usd = function (n) {
     return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
   };
 
   function calc() {
-    var followers = +fEl.value, traffic = +tEl.value, rate = +rEl.value / 100;
+    var followers = +fEl.value, traffic = +tEl.value;
 
     document.getElementById("o-followers").textContent = num(followers);
     document.getElementById("o-traffic").textContent = num(traffic);
-    document.getElementById("o-royalty").textContent = rEl.value + "%";
 
     // Funnel model, playbook §6:
     //   counter QR  ~1.5% of monthly foot traffic → storefront visits
@@ -1017,21 +1645,51 @@
     document.getElementById("o-sessions").textContent = num(Math.round(sessions));
     document.getElementById("o-orders").textContent   = num(Math.round(orders));
     document.getElementById("o-gmv").textContent      = usd(gmv);
-    document.getElementById("o-payout").textContent   = usd(gmv * rate);
+
+    // Playbook §3: Storefront is a flat 15% of retail. Platform hands back the
+    // first $200 of merch each month in full, then 25% above that line, and
+    // the result is read against the $199 subscription.
+    var payout, net = null;
+    if (tier === "platform") {
+      payout = Math.min(gmv, 200) + Math.max(0, gmv - 200) * 0.25;
+      net = payout - 199;
+      document.getElementById("o-tier").textContent = "Platform · first $200, then 25%";
+    } else {
+      payout = gmv * 0.15;
+      document.getElementById("o-tier").textContent = "Storefront · 15% of retail";
+    }
+    document.getElementById("o-payout").textContent = usd(payout);
+
+    var netEl = document.getElementById("o-net");
+    if (net === null) {
+      netEl.hidden = true;
+    } else {
+      netEl.hidden = false;
+      netEl.textContent = net >= 0
+        ? "Website free, " + usd(net) + " on top"
+        : usd(payout) + " of the $199 fee covered";
+    }
   }
-  [fEl, tEl, rEl].forEach(function (el) { el.addEventListener("input", calc); });
+  [fEl, tEl].forEach(function (el) { el.addEventListener("input", calc); });
+  tierSel.addEventListener("click", function (e) {
+    var b = e.target.closest(".tseg");
+    if (!b) return;
+    tier = b.dataset.tier;
+    tierSel.querySelectorAll(".tseg").forEach(function (t) { t.classList.toggle("is-on", t === b); });
+    calc();
+  });
   calc();
 
   /* ---------------- storefront ---------------- */
   var products = [
-    { n: "Sticker Sheet",       p: 6,  lane: "a", bg: "#a8762b", d: "Arrives by Aug 31" },
-    { n: "Enamel Pin",          p: 12, lane: "a", bg: "#7c4a22", d: "Arrives by Sep 1" },
-    { n: "Steam Mark Magnet",   p: 8,  lane: "a", bg: "#57181f", d: "Arrives by Aug 31" },
-    { n: "Ceramic Noodle Mug",  p: 22, lane: "a", bg: "#4a3a26", d: "Arrives by Sep 2" },
-    { n: "Canvas Tote",         p: 24, lane: "a", bg: "#4d4c33", d: "Arrives by Sep 2" },
-    { n: "Logo Tee",            p: 32, lane: "a", bg: "#2e2317", d: "Arrives by Sep 3" },
-    { n: "Est. 2019 Hoodie",    p: 54, lane: "b", bg: "#3e1016", d: "Drop — arrives by Sep 16" },
-    { n: "Embroidered Cap",     p: 28, lane: "b", bg: "#6d6a45", d: "Drop — arrives by Sep 14" }
+    { n: "Logo Tee",            p: 32, lane: "a", d: "Arrives by Sep 3" },
+    { n: "Embroidered Cap",     p: 28, lane: "b", d: "Drop — arrives by Sep 14" },
+    { n: "Est. 2019 Hoodie",    p: 54, lane: "b", d: "Drop — arrives by Sep 16" },
+    { n: "Ramen Bowl",          p: 26, lane: "a", d: "Arrives by Sep 2" },
+    { n: "Steam Mark Magnet",   p: 8,  lane: "a", d: "Arrives by Aug 31" },
+    { n: "Canvas Tote",         p: 24, lane: "a", d: "Arrives by Sep 2" },
+    { n: "Sticker Sheet",       p: 6,  lane: "a", d: "Arrives by Aug 31" },
+    { n: "Enamel Pin",          p: 12, lane: "a", d: "Arrives by Sep 1" }
   ];
   var grid = document.getElementById("pgrid");
   products.forEach(function (p, i) {
@@ -1064,20 +1722,111 @@
   });
 
   /* ---------------- design studio ---------------- */
-  var surfaces = [
-    { label: "T-shirt",     bg: "#2e2317" },
-    { label: "Canvas tote", bg: "#4d4c33" },
-    { label: "Enamel pin",  bg: "#57181f" },
-    { label: "Ceramic mug", bg: "#7c4a22" }
+  /* Each product is a silhouette plus a print area — the rectangle on that
+     product where a logo would actually be applied. viewBox is 100x100 and
+     the slot is [x, y, w, h] in the same units. */
+  var SHAPES = {
+    tee:      { slot: [36, 44, 28, 20],
+                d: "M38 18 L26 22 L12 36 L24 48 L30 42 L30 86 L70 86 L70 42 L76 48 L88 36 L74 22 L62 18 C58 27 42 27 38 18 Z" },
+    cap:      { slot: [38, 40, 24, 16],
+                d: "M22 62 A28 28 0 0 1 78 62 Z M20 62 L86 62 C90 70 78 75 66 75 L20 75 C14 71 14 66 20 62 Z" },
+    sticker:  { slot: [32, 34, 36, 32],
+                d: "M22 18 H72 L82 28 V78 A4 4 0 0 1 78 82 H22 A4 4 0 0 1 18 78 V22 A4 4 0 0 1 22 18 Z",
+                ln: "M72 18 V28 H82" },
+    tote:     { slot: [34, 50, 32, 24],
+                d: "M24 38 H76 V82 A4 4 0 0 1 72 86 H28 A4 4 0 0 1 24 82 Z",
+                ln: "M36 38 V30 A14 12 0 0 1 64 30 V38" },
+    bowl:     { slot: [38, 52, 24, 16],
+                d: "M15 46 H85 A35 35 0 0 1 15 46 Z M42 78 H58 V85 H42 Z" },
+    rest:     { slot: [40, 50, 20, 12],
+                d: "M24 60 C24 49 40 44 50 44 C60 44 76 49 76 60 C76 66 68 68 50 68 C32 68 24 66 24 60 Z" },
+    pint:     { slot: [40, 36, 20, 22],
+                d: "M32 20 H68 L62 82 A5 5 0 0 1 57 86 H43 A5 5 0 0 1 38 82 Z" },
+    opener:   { slot: [27, 44, 26, 12], even: true,
+                d: "M26 40 H62 A16 16 0 1 1 62 60 H26 A5 5 0 0 1 21 55 V45 A5 5 0 0 1 26 40 Z M68 44 A6 6 0 1 0 68 56 A6 6 0 1 0 68 44 Z" },
+    cone:     { slot: [40, 26, 20, 16],
+                d: "M34 46 A16 16 0 0 1 66 46 Z M36 48 H64 L52 86 H48 Z" },
+    spoon:    { slot: [42, 28, 16, 18],
+                d: "M50 18 A14 18 0 0 1 50 54 A14 18 0 0 1 50 18 Z M46 52 H54 V86 H46 Z" },
+    mug:      { slot: [32, 44, 26, 22],
+                d: "M24 32 H64 V74 A9 9 0 0 1 55 83 H33 A9 9 0 0 1 24 74 Z",
+                ln: "M66 44 A11 11 0 0 1 66 66" },
+    tin:      { slot: [36, 40, 28, 24],
+                d: "M30 28 A20 7 0 0 1 70 28 V72 A20 7 0 0 1 30 72 Z" },
+    comb:     { slot: [32, 32, 36, 16],
+                d: "M18 28 H82 V52 H18 Z M22 52 H27 V74 H22 Z M33 52 H38 V74 H33 Z M44 52 H49 V74 H44 Z M55 52 H60 V74 H55 Z M66 52 H71 V74 H66 Z" },
+    pole:     { slot: [42, 38, 16, 24],
+                d: "M40 24 A10 10 0 0 1 60 24 V76 A10 10 0 0 1 40 76 Z" },
+    marker:   { slot: [34, 34, 32, 32],
+                d: "M50 16 A34 34 0 1 1 49.9 16 Z" },
+    pennant:  { slot: [39, 25, 26, 15],
+                d: "M27 12 H33 V88 H27 Z M33 17 L77 32 L33 47 Z" }
+  };
+
+  /* Every shop gets the same staples; what changes by trade is the tail of
+     the line — the signature shapes, merch cut to the thing the shop
+     actually sells. That swap is the demo. */
+  var CORE = [
+    { label: "Logo tee",        shape: "tee" },
+    { label: "Embroidered cap", shape: "cap" },
+    { label: "Sticker sheet",   shape: "sticker" },
+    { label: "Canvas tote",     shape: "tote" }
   ];
+  var SIGNATURE = {
+    noodle:   [{ label: "Ramen bowl",    shape: "bowl" },
+               { label: "Chopstick rest", shape: "rest" }],
+    bar:      [{ label: "Pint glass",    shape: "pint" },
+               { label: "Bottle opener", shape: "opener" }],
+    creamery: [{ label: "Cone magnet",   shape: "cone" },
+               { label: "Scoop spoon",   shape: "spoon" }],
+    coffee:   [{ label: "Pour-over mug", shape: "mug" },
+               { label: "Bean tin",      shape: "tin" }],
+    barber:   [{ label: "Comb sleeve",   shape: "comb" },
+               { label: "Pole pin",      shape: "pole" }],
+    golf:     [{ label: "Ball marker",   shape: "marker" },
+               { label: "Flag pennant",  shape: "pennant" }]
+  };
+
   var mocks = document.getElementById("mocks");
-  surfaces.forEach(function (s) {
-    var el = document.createElement("div");
-    el.className = "mock";
-    el.innerHTML =
-      '<div class="mock-surface" style="background:' + s.bg + '"><span class="slot">DAN</span></div>' +
-      '<div class="mock-label">' + s.label + "</div>";
-    mocks.appendChild(el);
+  var trades = document.getElementById("trades");
+  var currentTrade = "noodle";
+  var logoSrc = null;                  // survives a trade switch once uploaded
+
+  function renderMocks() {
+    var sig = SIGNATURE[currentTrade] || [];
+    var list = CORE.concat(sig);
+    mocks.innerHTML = "";
+    list.forEach(function (s, i) {
+      var el = document.createElement("div");
+      el.className = "mock" + (i >= CORE.length ? " sig" : "");
+      var sh = SHAPES[s.shape] || SHAPES.sticker;
+      el.innerHTML =
+        '<div class="mock-surface">' +
+          '<svg class="silo" viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
+            '<path d="' + sh.d + '"' + (sh.even ? ' fill-rule="evenodd"' : "") + "/>" +
+            (sh.ln ? '<path class="ln" d="' + sh.ln + '"/>' : "") +
+          "</svg>" +
+          '<div class="print' + (logoSrc ? " filled" : "") + '" style="left:' + sh.slot[0] +
+            "%;top:" + sh.slot[1] + "%;width:" + sh.slot[2] + "%;height:" + sh.slot[3] + '%">' +
+            (logoSrc
+              ? '<img src="' + logoSrc + '" alt="Uploaded logo on the ' + s.label + ' mockup">'
+              : '<span class="slot">Your<br>logo</span>') +
+          "</div>" +
+        "</div>" +
+        '<div class="mock-label">' + s.label + "</div>";
+      mocks.appendChild(el);
+    });
+  }
+  renderMocks();
+
+  trades.addEventListener("click", function (e) {
+    var btn = e.target.closest(".trade");
+    if (!btn) return;
+    currentTrade = btn.dataset.trade;
+    trades.querySelectorAll(".trade").forEach(function (t) {
+      t.classList.toggle("is-on", t === btn);
+    });
+    renderMocks();
   });
 
   var drop = document.getElementById("drop");
@@ -1087,15 +1836,10 @@
     if (!file || !/^image\//.test(file.type)) return;
     var reader = new FileReader();
     reader.onload = function (ev) {
-      document.querySelectorAll(".mock-surface").forEach(function (surface) {
-        surface.innerHTML = "";
-        var img = document.createElement("img");
-        img.src = ev.target.result;
-        img.alt = "Uploaded logo on product mockup";
-        surface.appendChild(img);
-      });
-      drop.querySelector("h3").textContent = "Applied to all mockups";
-      drop.querySelector("p").textContent = file.name;
+      logoSrc = ev.target.result;
+      renderMocks();
+      drop.querySelector("h3").textContent = "Applied to the whole line";
+      drop.querySelector("p").textContent = file.name + " — switch trades to see it carry across";
     };
     reader.readAsDataURL(file);
   }
