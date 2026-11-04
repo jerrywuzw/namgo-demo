@@ -162,7 +162,9 @@
      only ever appear on localhost, so they can't reach the live site.
 
      Delivery dates: tag a Shopify product "arrives-9" to show a date nine
-     days from today. No tag means no date, rather than a made-up one.  */
+     days from today. No tag means no date, rather than a made-up one.
+     Tag a product "leadtime-15-21" to show "Made to order · 15–21 days"
+     on the product and again in the cart, before checkout.             */
   var CONFIG = { domain: "", token: "", collection: "dao-artisan-noodle" };
   var API_VERSION = "2026-10";
 
@@ -203,7 +205,7 @@
     "variants(first: 50) { nodes { id title availableForSale price { amount currencyCode } } }";
   var CART = "id checkoutUrl totalQuantity cost { subtotalAmount { amount currencyCode } } " +
     "lines(first: 50) { nodes { id quantity merchandise { ... on ProductVariant { title " +
-    "image { url altText } price { amount currencyCode } product { title } } } } }";
+    "image { url altText } price { amount currencyCode } product { title tags } } } } }";
 
   function showState(title, text) {
     $("pgrid").hidden = true;
@@ -227,6 +229,14 @@
     return "";
   }
 
+  function leadtime(tags) {
+    for (var i = 0; i < tags.length; i++) {
+      var m = /^leadtime-(\d{1,3})-(\d{1,3})$/.exec(tags[i]);
+      if (m) return "Made to order · " + m[1] + "–" + m[2] + " days";
+    }
+    return "";
+  }
+
   function render(products) {
     if (!products.length) { showState("Opening soon", "Our first run of merch is on its way. Check back shortly."); return; }
     $("pgrid").innerHTML = products.map(function (p, i) {
@@ -242,10 +252,12 @@
           }).join("") + "</select>"
         : "";
       var date = arrival(p.tags || []);
+      var lead = leadtime(p.tags || []);
       return '<article class="pcard' + (img ? " has-img" : "") + '" style="--i:' + i + '">' +
         '<div class="pthumb">' + thumb + "</div>" +
         '<div class="pbody"><h2 class="pname">' + esc(p.title) + "</h2>" +
         '<div class="pprice">' + money(first.price) + "</div>" +
+        (lead ? '<div class="pdate">' + esc(lead) + "</div>" : "") +
         (date ? '<div class="pdate">' + esc(date) + "</div>" : "") + pick +
         '<button class="padd" type="button" data-v="' + esc(first.id) + '"' + (p.availableForSale ? "" : " disabled") + ">" +
         (p.availableForSale ? "Add to cart" : "Sold out") + "</button></div></article>";
@@ -287,6 +299,8 @@
     $("lines").innerHTML = lines.map(function (l) {
       var m = l.merchandise;
       var option = m.title === "Default Title" ? "" : "<small>" + esc(m.title) + "</small>";
+      var lead = leadtime(m.product.tags || []);
+      if (lead) option += "<small>" + esc(lead) + "</small>";
       var img = m.image ? '<img src="' + esc(m.image.url) + '" alt="">' : '<div class="noimg"></div>';
       return '<div class="line">' + img + "<div><b>" + esc(m.product.title) + "</b>" + option +
         '<div class="qty"><button type="button" data-line="' + esc(l.id) + '" data-q="' + (l.quantity - 1) + '" aria-label="Remove one ' + esc(m.product.title) + '">−</button>' +
