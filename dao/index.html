@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dao Artisan Noodle Merch</title>
+<meta name="description" content="Official Dao Artisan Noodle merch, made and shipped by NAMGO.">
+<meta property="og:title" content="Dao Artisan Noodle Merch">
+<meta property="og:description" content="Official Dao Artisan Noodle merch, made and shipped by NAMGO.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://namgo.co/dao/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #f2eedc; --ground-2: #e7dfc4; --ink: #57181f; --ink-press: #3e1016;
+    --body: #5b4a3c; --body-soft: #7d6c5b; --on-ink: #f6f2e2; --line: #d3c7a4;
+    --good: #46693f; --card: #fbf8ec; --foot-bg: #241512; --foot-ink: #f2eedc;
+    --foot-soft: #b39c8e; --mock-bg: #33291d; --mock-art: #f4efdd;
+    --f-display: "Archivo", "Helvetica Neue", Impact, sans-serif;
+    --f-body: "Instrument Sans", -apple-system, "Segoe UI", sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #16110f; --ground-2: #201814; --ink: #ecd8bb; --ink-press: #fbeed7;
+      --body: #c0ae99; --body-soft: #968776; --on-ink: #1b1310; --line: #3e2f26;
+      --good: #86b47c; --card: #1e1713; --foot-bg: #0d0908; --mock-bg: #2b211b; --mock-art: #e8d5b8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #16110f; --ground-2: #201814; --ink: #ecd8bb; --ink-press: #fbeed7;
+    --body: #c0ae99; --body-soft: #968776; --on-ink: #1b1310; --line: #3e2f26;
+    --good: #86b47c; --card: #1e1713; --foot-bg: #0d0908; --mock-bg: #2b211b; --mock-art: #e8d5b8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--body); font: 400 1rem/1.55 var(--f-body); }
+  a { color: inherit; }
+  button, select { font: inherit; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 clamp(1rem, 3vw, 2.4rem); }
+
+  .bar { position: sticky; top: 0; z-index: 5; background: var(--ground); border-bottom: 1px solid var(--line); }
+  .bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 64px; }
+  .brand { font: 800 1.15rem/1 var(--f-display); letter-spacing: .04em; color: var(--ink); text-decoration: none; }
+  .pill {
+    min-height: 44px; padding: .55rem 1.1rem; border: 0; border-radius: 999px; cursor: pointer;
+    background: var(--ink); color: var(--on-ink); font-weight: 600; font-size: .9rem;
+  }
+  .pill:hover { background: var(--ink-press); }
+  .pill:disabled { opacity: .55; cursor: not-allowed; }
+
+  .hero { padding: clamp(2.2rem, 6vw, 4.5rem) 0 clamp(1.2rem, 3vw, 2rem); }
+  .cobrand { margin: 0 0 .7rem; font: 500 .74rem/1.3 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--body-soft); }
+  h1 { margin: 0; font: 800 clamp(2.5rem, 9vw, 5.5rem)/.95 var(--f-display); font-stretch: 68%; text-transform: uppercase; color: var(--ink); text-wrap: balance; }
+  .blurb { max-width: 56ch; margin: 1rem 0 0; }
+
+  .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1.2rem 0 3.5rem; }
+  .pcard { display: flex; flex-direction: column; overflow: hidden; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  .pthumb { aspect-ratio: 1; background: var(--mock-bg); color: var(--mock-art); display: grid; place-items: center; padding: 1rem; text-align: center; font-size: .85rem; }
+  .pthumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pcard.has-img .pthumb { padding: 0; }
+  .pbody { display: flex; flex-direction: column; gap: .35rem; flex: 1; padding: .9rem; }
+  .pname { margin: 0; font-size: .95rem; font-weight: 600; color: var(--ink); }
+  .pprice { font: 500 .95rem var(--f-mono); color: var(--ink); }
+  .pdate { font-size: .78rem; color: var(--body-soft); }
+  .pick { width: 100%; min-height: 44px; margin-top: auto; padding: 0 .5rem; color: var(--ink); background: var(--ground); border: 1px solid var(--line); border-radius: 8px; }
+  .padd { width: 100%; min-height: 44px; margin-top: auto; cursor: pointer; color: var(--ink); background: transparent; border: 1px solid var(--ink); border-radius: 8px; font-weight: 600; font-size: .88rem; }
+  .pick + .padd { margin-top: .4rem; }
+  .padd:hover:not(:disabled) { background: var(--ink); color: var(--on-ink); }
+  .padd:disabled { opacity: .55; cursor: not-allowed; }
+  .padd.added { background: var(--good); border-color: var(--good); color: #fff; opacity: 1; }
+
+  .state { padding: 2.5rem 0 5rem; }
+  .state h2 { margin: 0 0 .4rem; font: 800 1.8rem/1.1 var(--f-display); font-stretch: 68%; text-transform: uppercase; color: var(--ink); }
+  .state p { margin: 0; max-width: 52ch; }
+
+  dialog.cart { width: min(440px, 100vw); max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0 0 0 auto; padding: 0; border: 0; background: var(--ground); color: var(--body); }
+  dialog.cart::backdrop { background: rgba(30, 15, 10, .5); }
+  .cart-in { display: flex; flex-direction: column; height: 100%; }
+  .cart-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); }
+  .cart-head h2 { margin: 0; font: 800 1.35rem var(--f-display); font-stretch: 68%; text-transform: uppercase; color: var(--ink); }
+  .x { min-width: 44px; min-height: 44px; border: 0; background: transparent; color: var(--ink); cursor: pointer; font-size: 1.4rem; }
+  .lines { flex: 1; overflow: auto; padding: .4rem 1.2rem; }
+  .line { display: grid; grid-template-columns: 64px 1fr auto; gap: .8rem; align-items: center; padding: .8rem 0; border-bottom: 1px solid var(--line); }
+  .line img, .line .noimg { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; background: var(--mock-bg); }
+  .line b { display: block; font-size: .9rem; font-weight: 600; color: var(--ink); }
+  .line small { display: block; color: var(--body-soft); }
+  .qty { display: flex; align-items: center; gap: .15rem; margin-top: .25rem; }
+  .qty button { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--ink); cursor: pointer; }
+  .qty span { min-width: 1.6rem; text-align: center; font-family: var(--f-mono); }
+  .cart-foot { padding: 1rem 1.2rem calc(1rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+  .sum { display: flex; justify-content: space-between; margin-bottom: .2rem; font: 500 1rem var(--f-mono); color: var(--ink); }
+  .cart-foot p { margin: 0 0 .8rem; font-size: .8rem; color: var(--body-soft); }
+  .cart-foot .pill { width: 100%; }
+  .empty { padding: 2rem 0; }
+  .err { color: #b3261e; font-size: .85rem; margin: 0 0 .6rem; }
+
+  footer { background: var(--foot-bg); color: var(--foot-soft); padding: 1.8rem 0; font-size: .85rem; }
+  footer a { color: var(--foot-ink); }
+
+  @media (max-width: 900px) { .pgrid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 380px) { .pbody { padding: .7rem; } }
+  @media (prefers-reduced-motion: no-preference) { .pcard { transition: transform .2s ease; } .pcard:hover { transform: translateY(-3px); } }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">NAMGO</a>
+    <button class="pill" id="open-cart" type="button">Cart (<span id="cart-n">0</span>)</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="cobrand">Made for Dao Artisan Noodle by NAMGO</p>
+      <h1>Dao Artisan Noodle</h1>
+      <p class="blurb">Official merch from the noodle shop in San Leandro. Wear it around town, or send one to somebody who moved away.</p>
+    </div>
+  </section>
+  <div class="wrap">
+    <div class="pgrid" id="pgrid" aria-live="polite"></div>
+    <div class="state" id="state" hidden></div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">Sold and shipped by NAMGO. Questions about an order go to NAMGO, not the restaurant. <a href="../">namgo.co</a></div>
+</footer>
+
+<dialog class="cart" id="cart" aria-labelledby="cart-title">
+  <div class="cart-in">
+    <div class="cart-head">
+      <h2 id="cart-title">Your cart</h2>
+      <button class="x" id="close-cart" type="button" aria-label="Close cart">×</button>
+    </div>
+    <div class="lines" id="lines"></div>
+    <div class="cart-foot" id="cart-foot" hidden>
+      <div class="sum"><span>Subtotal</span><span id="subtotal"></span></div>
+      <p>Shipping and tax are worked out at checkout.</p>
+      <p class="err" id="cart-err" hidden></p>
+      <button class="pill" id="checkout" type="button">Checkout</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- connect the real store here ----------------
+     domain:     the store's xxxx.myshopify.com address
+     token:      its public Storefront API token (safe to publish; it can
+                 only read products and build carts)
+     collection: the collection that holds this shop's products
+
+     While domain is empty the page shows "Opening soon". Sample products
+     only ever appear on localhost, so they can't reach the live site.
+
+     Delivery dates: tag a Shopify product "arrives-9" to show a date nine
+     days from today. No tag means no date, rather than a made-up one.  */
+  var CONFIG = { domain: "", token: "", collection: "dao-artisan-noodle" };
+  var API_VERSION = "2026-10";
+
+  var local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  var sample = !CONFIG.domain && local;
+  var live = !!CONFIG.domain || sample;
+  var endpoint = sample ? "https://mock.shop/api"
+    : "https://" + CONFIG.domain + "/api/" + API_VERSION + "/graphql.json";
+  var CART_KEY = "namgo-dao-cart";
+
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function money(m) {
+    return Number(m.amount).toLocaleString("en-US", { style: "currency", currency: m.currencyCode || "USD" });
+  }
+  function store(value) {
+    try {
+      if (value === undefined) return localStorage.getItem(CART_KEY);
+      if (value === null) localStorage.removeItem(CART_KEY);
+      else localStorage.setItem(CART_KEY, value);
+    } catch (e) { /* private window: the cart lasts as long as the page */ }
+    return null;
+  }
+
+  function gql(query, variables) {
+    var headers = { "Content-Type": "application/json" };
+    if (CONFIG.token) headers["X-Shopify-Storefront-Access-Token"] = CONFIG.token;
+    return fetch(endpoint, { method: "POST", headers: headers, body: JSON.stringify({ query: query, variables: variables || {} }) })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (j) { if (j.errors) throw new Error(j.errors[0].message); return j.data; });
+  }
+
+  var PRODUCT = "id title tags availableForSale featuredImage { url altText } " +
+    "variants(first: 50) { nodes { id title availableForSale price { amount currencyCode } } }";
+  var CART = "id checkoutUrl totalQuantity cost { subtotalAmount { amount currencyCode } } " +
+    "lines(first: 50) { nodes { id quantity merchandise { ... on ProductVariant { title " +
+    "image { url altText } price { amount currencyCode } product { title } } } } }";
+
+  function showState(title, text) {
+    $("pgrid").hidden = true;
+    var s = $("state");
+    s.hidden = false;
+    s.innerHTML = "<h2>" + esc(title) + "</h2><p>" + esc(text) + "</p>";
+  }
+
+  /* ---------------- products ---------------- */
+  var variants = {};
+
+  function arrival(tags) {
+    for (var i = 0; i < tags.length; i++) {
+      var m = /^arrives-(\d{1,3})$/.exec(tags[i]);
+      if (m) {
+        var d = new Date();
+        d.setDate(d.getDate() + Number(m[1]));
+        return "Arrives by " + d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      }
+    }
+    return "";
+  }
+
+  function render(products) {
+    if (!products.length) { showState("Opening soon", "Our first run of merch is on its way. Check back shortly."); return; }
+    $("pgrid").innerHTML = products.map(function (p, i) {
+      var vs = p.variants.nodes;
+      vs.forEach(function (v) { variants[v.id] = v; });
+      var first = vs.filter(function (v) { return v.availableForSale; })[0] || vs[0];
+      var img = p.featuredImage;
+      var thumb = img ? '<img src="' + esc(img.url + (img.url.indexOf("?") < 0 ? "?" : "&") + "width=600") + '" alt="' + esc(img.altText || p.title) + '" loading="lazy">' : esc(p.title);
+      var pick = vs.length > 1
+        ? '<select class="pick" aria-label="Choose an option for ' + esc(p.title) + '">' + vs.map(function (v) {
+            return '<option value="' + esc(v.id) + '"' + (v.id === first.id ? " selected" : "") + (v.availableForSale ? "" : " disabled") + ">" +
+              esc(v.title) + (v.availableForSale ? "" : " (sold out)") + "</option>";
+          }).join("") + "</select>"
+        : "";
+      var date = arrival(p.tags || []);
+      return '<article class="pcard' + (img ? " has-img" : "") + '" style="--i:' + i + '">' +
+        '<div class="pthumb">' + thumb + "</div>" +
+        '<div class="pbody"><h2 class="pname">' + esc(p.title) + "</h2>" +
+        '<div class="pprice">' + money(first.price) + "</div>" +
+        (date ? '<div class="pdate">' + esc(date) + "</div>" : "") + pick +
+        '<button class="padd" type="button" data-v="' + esc(first.id) + '"' + (p.availableForSale ? "" : " disabled") + ">" +
+        (p.availableForSale ? "Add to cart" : "Sold out") + "</button></div></article>";
+    }).join("");
+  }
+
+  $("pgrid").addEventListener("change", function (e) {
+    if (!e.target.classList.contains("pick")) return;
+    var card = e.target.closest(".pcard");
+    var v = variants[e.target.value];
+    card.querySelector(".padd").dataset.v = v.id;
+    card.querySelector(".pprice").textContent = money(v.price);
+  });
+
+  $("pgrid").addEventListener("click", function (e) {
+    var btn = e.target.closest(".padd");
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    addLine(btn.dataset.v).then(function () {
+      btn.textContent = "Added ✓";
+      btn.classList.add("added");
+      window.setTimeout(function () { btn.textContent = "Add to cart"; btn.classList.remove("added"); btn.disabled = false; }, 1200);
+    }).catch(function () {
+      btn.textContent = "Try again";
+      btn.disabled = false;
+    });
+  });
+
+  /* ---------------- cart ---------------- */
+  var cart = null;
+
+  function paint() {
+    var lines = cart ? cart.lines.nodes : [];
+    $("cart-n").textContent = cart ? cart.totalQuantity : 0;
+    $("cart-foot").hidden = !lines.length;
+    $("cart-err").hidden = true;
+    if (!lines.length) { $("lines").innerHTML = '<p class="empty">Your cart is empty.</p>'; return; }
+    $("subtotal").textContent = money(cart.cost.subtotalAmount);
+    $("lines").innerHTML = lines.map(function (l) {
+      var m = l.merchandise;
+      var option = m.title === "Default Title" ? "" : "<small>" + esc(m.title) + "</small>";
+      var img = m.image ? '<img src="' + esc(m.image.url) + '" alt="">' : '<div class="noimg"></div>';
+      return '<div class="line">' + img + "<div><b>" + esc(m.product.title) + "</b>" + option +
+        '<div class="qty"><button type="button" data-line="' + esc(l.id) + '" data-q="' + (l.quantity - 1) + '" aria-label="Remove one ' + esc(m.product.title) + '">−</button>' +
+        "<span>" + l.quantity + "</span>" +
+        '<button type="button" data-line="' + esc(l.id) + '" data-q="' + (l.quantity + 1) + '" aria-label="Add one ' + esc(m.product.title) + '">+</button></div></div>' +
+        "<small>" + money(m.price) + "</small></div>";
+    }).join("");
+  }
+
+  function setCart(c) {
+    cart = c;
+    store(c ? c.id : null);
+    paint();
+  }
+
+  function check(payload) {
+    if (payload.userErrors && payload.userErrors.length) throw new Error(payload.userErrors[0].message);
+    return payload.cart;
+  }
+
+  function addLine(variantId) {
+    var lines = [{ merchandiseId: variantId, quantity: 1 }];
+    var go = cart
+      ? gql("mutation($id: ID!, $lines: [CartLineInput!]!) { cartLinesAdd(cartId: $id, lines: $lines) { cart { " + CART + " } userErrors { message } } }", { id: cart.id, lines: lines })
+          .then(function (d) { return check(d.cartLinesAdd); })
+      : gql("mutation($lines: [CartLineInput!]) { cartCreate(input: { lines: $lines }) { cart { " + CART + " } userErrors { message } } }", { lines: lines })
+          .then(function (d) { return check(d.cartCreate); });
+    return go.then(setCart);
+  }
+
+  $("lines").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-line]");
+    if (!b) return;
+    gql("mutation($id: ID!, $lines: [CartLineUpdateInput!]!) { cartLinesUpdate(cartId: $id, lines: $lines) { cart { " + CART + " } userErrors { message } } }",
+      { id: cart.id, lines: [{ id: b.dataset.line, quantity: Number(b.dataset.q) }] })
+      .then(function (d) { setCart(check(d.cartLinesUpdate)); })
+      .catch(function () { $("cart-err").textContent = "That didn't update. Please try again."; $("cart-err").hidden = false; });
+  });
+
+  $("open-cart").addEventListener("click", function () { $("cart").showModal(); });
+  $("close-cart").addEventListener("click", function () { $("cart").close(); });
+  $("cart").addEventListener("click", function (e) { if (e.target === this) this.close(); });
+  $("checkout").addEventListener("click", function () { if (cart) location.href = cart.checkoutUrl; });
+
+  /* ---------------- start ---------------- */
+  paint();
+
+  if (!live) {
+    $("open-cart").disabled = true;
+    showState("Opening soon", "Our first run of merch is on its way. Check back shortly.");
+    return;
+  }
+
+  var load = sample
+    ? gql("{ products(first: 8) { nodes { " + PRODUCT + " } } }").then(function (d) { return d.products.nodes; })
+    : gql("query($h: String!) { collection(handle: $h) { products(first: 48) { nodes { " + PRODUCT + " } } } }", { h: CONFIG.collection })
+        .then(function (d) { return d.collection ? d.collection.products.nodes : []; });
+
+  load.then(render).catch(function () {
+    showState("We'll be right back", "The shop couldn't load just now. Please try again in a minute.");
+  });
+
+  var saved = store();
+  if (saved) {
+    gql("query($id: ID!) { cart(id: $id) { " + CART + " } }", { id: saved })
+      .then(function (d) { setCart(d.cart || null); })
+      .catch(function () { store(null); });
+  }
+})();
+</script>
+</body>
+</html>
