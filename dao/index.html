@@ -77,6 +77,27 @@
   .state h2 { margin: 0 0 .4rem; font: 800 1.8rem/1.1 var(--f-display); font-stretch: 68%; text-transform: uppercase; color: var(--ink); }
   .state p { margin: 0; max-width: 52ch; }
 
+  .popen { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .popen:hover .pname { text-decoration: underline; }
+
+  dialog.detail { width: min(980px, 100vw); max-width: 100vw; max-height: 100dvh; padding: 0; border: 0; border-radius: 14px; background: var(--ground); color: var(--body); }
+  dialog.detail::backdrop { background: rgba(30, 15, 10, .55); }
+  .d-close { position: sticky; top: 0; z-index: 2; display: flex; justify-content: flex-end; height: 0; }
+  .d-close .x { margin: .4rem; background: var(--card); border-radius: 50%; }
+  .d-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(1rem, 3vw, 2rem); padding: clamp(1rem, 3vw, 2rem); }
+  .d-main { width: 100%; aspect-ratio: 1; object-fit: contain; display: block; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+  .d-thumbs { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .6rem; }
+  .d-thumbs button { width: 64px; height: 64px; padding: 0; overflow: hidden; cursor: pointer; background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+  .d-thumbs button[aria-current="true"] { border: 2px solid var(--ink); }
+  .d-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .d-info h2 { margin: 0 0 .4rem; padding-right: 2.5rem; font: 800 clamp(1.7rem, 4vw, 2.5rem)/1 var(--f-display); font-stretch: 68%; text-transform: uppercase; color: var(--ink); }
+  .d-price { margin-bottom: .5rem; font: 500 1.1rem var(--f-mono); color: var(--ink); }
+  .d-info .pick { margin: .9rem 0 .5rem; }
+  .d-info .padd { margin: 0; background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .d-info .padd:hover:not(:disabled) { background: var(--ink-press); }
+  .d-desc { margin-top: 1.1rem; font-size: .95rem; }
+  .d-desc p { margin: 0 0 .7rem; }
+
   dialog.cart { width: min(440px, 100vw); max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0 0 0 auto; padding: 0; border: 0; background: var(--ground); color: var(--body); }
   dialog.cart::backdrop { background: rgba(30, 15, 10, .5); }
   .cart-in { display: flex; flex-direction: column; height: 100%; }
@@ -102,6 +123,10 @@
   footer a { color: var(--foot-ink); }
 
   @media (max-width: 900px) { .pgrid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 720px) {
+    .d-grid { grid-template-columns: 1fr; }
+    dialog.detail { width: 100vw; height: 100dvh; border-radius: 0; }
+  }
   @media (max-width: 380px) { .pbody { padding: .7rem; } }
   @media (prefers-reduced-motion: no-preference) { .pcard { transition: transform .2s ease; } .pcard:hover { transform: translateY(-3px); } }
 </style>
@@ -131,6 +156,24 @@
 <footer>
   <div class="wrap">Sold and shipped by NAMGO. Questions about an order go to NAMGO, not the restaurant. <a href="../">namgo.co</a></div>
 </footer>
+
+<dialog class="detail" id="detail" aria-labelledby="d-title">
+  <div class="d-close"><button class="x" id="close-detail" type="button" aria-label="Close product details">×</button></div>
+  <div class="d-grid">
+    <div>
+      <img class="d-main" id="d-main" alt="">
+      <div class="d-thumbs" id="d-thumbs"></div>
+    </div>
+    <div class="d-info">
+      <h2 id="d-title"></h2>
+      <div class="d-price" id="d-price"></div>
+      <div id="d-notes"></div>
+      <div id="d-pick"></div>
+      <button class="padd" id="d-add" type="button"></button>
+      <div class="d-desc" id="d-desc"></div>
+    </div>
+  </div>
+</dialog>
 
 <dialog class="cart" id="cart" aria-labelledby="cart-title">
   <div class="cart-in">
@@ -201,7 +244,8 @@
       .then(function (j) { if (j.errors) throw new Error(j.errors[0].message); return j.data; });
   }
 
-  var PRODUCT = "id title tags availableForSale featuredImage { url altText } " +
+  var PRODUCT = "id handle title tags availableForSale descriptionHtml featuredImage { url altText } " +
+    "images(first: 10) { nodes { url altText } } " +
     "variants(first: 50) { nodes { id title availableForSale price { amount currencyCode } } }";
   var CART = "id checkoutUrl totalQuantity cost { subtotalAmount { amount currencyCode } } " +
     "lines(first: 50) { nodes { id quantity merchandise { ... on ProductVariant { title " +
@@ -216,6 +260,7 @@
 
   /* ---------------- products ---------------- */
   var variants = {};
+  var catalog = {};
 
   function arrival(tags) {
     for (var i = 0; i < tags.length; i++) {
@@ -241,6 +286,7 @@
     if (!products.length) { showState("Opening soon", "Our first run of merch is on its way. Check back shortly."); return; }
     $("pgrid").innerHTML = products.map(function (p, i) {
       var vs = p.variants.nodes;
+      catalog[p.id] = p;
       vs.forEach(function (v) { variants[v.id] = v; });
       var first = vs.filter(function (v) { return v.availableForSale; })[0] || vs[0];
       var img = p.featuredImage;
@@ -254,15 +300,106 @@
       var date = arrival(p.tags || []);
       var lead = leadtime(p.tags || []);
       return '<article class="pcard' + (img ? " has-img" : "") + '" style="--i:' + i + '">' +
-        '<div class="pthumb">' + thumb + "</div>" +
-        '<div class="pbody"><h2 class="pname">' + esc(p.title) + "</h2>" +
+        '<button class="popen" type="button" data-p="' + esc(p.id) + '" aria-label="View details for ' + esc(p.title) + '">' +
+        '<div class="pthumb">' + thumb + "</div></button>" +
+        '<div class="pbody"><button class="popen" type="button" data-p="' + esc(p.id) + '"><h2 class="pname">' + esc(p.title) + "</h2></button>" +
         '<div class="pprice">' + money(first.price) + "</div>" +
         (lead ? '<div class="pdate">' + esc(lead) + "</div>" : "") +
         (date ? '<div class="pdate">' + esc(date) + "</div>" : "") + pick +
         '<button class="padd" type="button" data-v="' + esc(first.id) + '"' + (p.availableForSale ? "" : " disabled") + ">" +
         (p.availableForSale ? "Add to cart" : "Sold out") + "</button></div></article>";
     }).join("");
+    openFromLink();
   }
+
+  /* ---------------- product detail ---------------- */
+  function sized(url, width) {
+    return url + (url.indexOf("?") < 0 ? "?" : "&") + "width=" + width;
+  }
+
+  function showImage(img, title) {
+    var main = $("d-main");
+    main.src = sized(img.url, 1000);
+    main.alt = img.altText || title;
+    Array.prototype.forEach.call($("d-thumbs").children, function (b) {
+      b.setAttribute("aria-current", b.dataset.url === img.url ? "true" : "false");
+    });
+  }
+
+  function openDetail(p) {
+    var imgs = p.images.nodes.length ? p.images.nodes : (p.featuredImage ? [p.featuredImage] : []);
+    var vs = p.variants.nodes;
+    var first = vs.filter(function (v) { return v.availableForSale; })[0] || vs[0];
+    var notes = [leadtime(p.tags || []), arrival(p.tags || [])].filter(Boolean);
+
+    $("d-title").textContent = p.title;
+    $("d-price").textContent = money(first.price);
+    $("d-notes").innerHTML = notes.map(function (n) { return '<div class="pdate">' + esc(n) + "</div>"; }).join("");
+    $("d-desc").innerHTML = p.descriptionHtml; // written by us in Shopify admin
+
+    $("d-main").hidden = !imgs.length;
+    $("d-thumbs").innerHTML = imgs.length < 2 ? "" : imgs.map(function (img) {
+      return '<button type="button" data-url="' + esc(img.url) + '" data-alt="' + esc(img.altText || "") + '" aria-label="Show photo: ' + esc(img.altText || p.title) + '">' +
+        '<img src="' + esc(sized(img.url, 160)) + '" alt=""></button>';
+    }).join("");
+    if (imgs.length) showImage(imgs[0], p.title);
+
+    $("d-pick").innerHTML = vs.length > 1
+      ? '<select class="pick" id="d-select" aria-label="Choose an option">' + vs.map(function (v) {
+          return '<option value="' + esc(v.id) + '"' + (v.id === first.id ? " selected" : "") + (v.availableForSale ? "" : " disabled") + ">" +
+            esc(v.title) + (v.availableForSale ? "" : " (sold out)") + "</option>";
+        }).join("") + "</select>"
+      : "";
+
+    var add = $("d-add");
+    add.dataset.v = first.id;
+    add.disabled = !p.availableForSale;
+    add.classList.remove("added");
+    add.textContent = p.availableForSale ? "Add to cart" : "Sold out";
+
+    if (!$("detail").open) $("detail").showModal();
+    $("detail").scrollTop = 0;
+    try { history.replaceState(null, "", "#" + p.handle); } catch (e) { /* sharing link only */ }
+  }
+
+  function openFromLink() {
+    var handle = decodeURIComponent(location.hash.slice(1));
+    if (!handle) return;
+    Object.keys(catalog).some(function (id) {
+      if (catalog[id].handle !== handle) return false;
+      openDetail(catalog[id]);
+      return true;
+    });
+  }
+
+  window.addEventListener("hashchange", openFromLink);
+
+  $("d-thumbs").addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (b) showImage({ url: b.dataset.url, altText: b.dataset.alt }, $("d-title").textContent);
+  });
+  $("d-pick").addEventListener("change", function (e) {
+    var v = variants[e.target.value];
+    $("d-add").dataset.v = v.id;
+    $("d-price").textContent = money(v.price);
+  });
+  $("d-add").addEventListener("click", function () {
+    var btn = this;
+    btn.disabled = true;
+    addLine(btn.dataset.v).then(function () {
+      btn.textContent = "Added ✓";
+      btn.classList.add("added");
+      window.setTimeout(function () { btn.textContent = "Add to cart"; btn.classList.remove("added"); btn.disabled = false; }, 1200);
+    }).catch(function () {
+      btn.textContent = "Try again";
+      btn.disabled = false;
+    });
+  });
+  $("close-detail").addEventListener("click", function () { $("detail").close(); });
+  $("detail").addEventListener("click", function (e) { if (e.target === this) this.close(); });
+  $("detail").addEventListener("close", function () {
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { /* sharing link only */ }
+  });
 
   $("pgrid").addEventListener("change", function (e) {
     if (!e.target.classList.contains("pick")) return;
@@ -273,6 +410,8 @@
   });
 
   $("pgrid").addEventListener("click", function (e) {
+    var open = e.target.closest(".popen");
+    if (open) { openDetail(catalog[open.dataset.p]); return; }
     var btn = e.target.closest(".padd");
     if (!btn || btn.disabled) return;
     btn.disabled = true;
