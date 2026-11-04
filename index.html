@@ -9,7 +9,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <title>NAMGO Demo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="canonical" href="https://jerrywuzw.github.io/namgo-demo/">
+<link rel="canonical" href="https://namgo.co/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -983,7 +983,7 @@
             <div class="card-foot">
               <div class="kicker">Customer zero</div>
               <div class="shopname">Dao Artisan Noodle</div>
-              <div class="role">31 units sold this month · $148 royalty</div>
+              <div class="role">Illustrative example · 31 units · $81 royalty</div>
               <hr>
               <button class="card-btn" onclick="showView('store')">Visit storefront →</button>
             </div>
@@ -1124,7 +1124,7 @@
         </article>
 
         <article class="tier tier-lead obs">
-          <span class="tier-flag">Most shops upgrade here</span>
+          <span class="tier-flag">Website included</span>
           <h3 class="disp cond">Platform</h3>
           <p class="tier-fit">Shops with no website, or a bad one</p>
           <div class="tier-price"><span class="amt">$199</span> <span class="per">per month</span></div>
@@ -1135,7 +1135,7 @@
             <li>Unlimited design revisions</li>
             <li>Email support plus a monthly review</li>
           </ul>
-          <p class="tier-note tier-math">$200 of merch a month makes the website free. $500 a month makes it free and pays $275 on top.</p>
+          <p class="tier-note tier-math">$200 of merch a month makes the website free. $500 a month makes it free and pays $76 on top.</p>
         </article>
 
         <article class="tier obs">
@@ -1213,16 +1213,16 @@
   <div class="wrap">
     <div class="dashhead">
       <div>
-        <p class="micro">Dao Artisan Noodle · shop dashboard</p>
+        <p class="micro">Dao Artisan Noodle · shop dashboard · illustrative figures</p>
         <h2 class="disp cond">This month at a glance</h2>
       </div>
-      <span class="pill pill-ghost">Payout scheduled · Sep 1</span>
+      <span class="pill pill-ghost" id="payout-date">Payout scheduled</span>
     </div>
 
     <div class="stats">
       <div class="stat-c"><div class="k">Units sold</div><div class="v">31</div><div class="d up">↑ 24% vs. last month</div></div>
-      <div class="stat-c"><div class="k">Gross sales</div><div class="v">$986</div><div class="d up">↑ 18%</div></div>
-      <div class="stat-c"><div class="k">Royalty earned</div><div class="v">$148</div><div class="d up">↑ 18%</div></div>
+      <div class="stat-c"><div class="k">Gross sales</div><div class="v">$542</div><div class="d up">↑ 18%</div></div>
+      <div class="stat-c"><div class="k">Royalty earned</div><div class="v">$81</div><div class="d up">↑ 18%</div></div>
       <div class="stat-c"><div class="k">Revisions used</div><div class="v">1/2</div><div class="d flat">One free round left</div></div>
     </div>
 
@@ -1366,7 +1366,7 @@
       <a class="foot-link" href="./">Back to home</a>
     </div>
 
-    <p class="foot">Competitor details as recorded in the NAMGO Partner Playbook, August 2026. Verify current pricing before quoting a shop.</p>
+    <p class="foot">Competitor details as of August 2026. Check each company's site for current pricing.</p>
   </div>
 </main>
 
@@ -1430,7 +1430,7 @@
       <a class="foot-link" href="./">Back to home</a>
     </div>
 
-    <p class="foot">Competitor details as recorded in the NAMGO Partner Playbook, August 2026. Verify current pricing before quoting a shop.</p>
+    <p class="foot">Competitor details as of August 2026. Check each company's site for current pricing.</p>
   </div>
 </main>
 
@@ -1711,15 +1711,29 @@
   calc();
 
   /* ---------------- storefront ---------------- */
+  // Dates are worked out from today so the demo never shows one in the past.
+  function shortDate(daysAhead) {
+    var d = new Date();
+    d.setDate(d.getDate() + daysAhead);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+  (function () {
+    var next = new Date();
+    next.setDate(1); // set the day first so the 31st can't roll over two months
+    next.setMonth(next.getMonth() + 1);
+    document.getElementById("payout-date").textContent = "Payout scheduled · " +
+      next.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  })();
+
   var products = [
-    { n: "Logo Tee",            p: 32, lane: "a", d: "Arrives by Sep 3" },
-    { n: "Embroidered Cap",     p: 28, lane: "b", d: "Drop — arrives by Sep 14" },
-    { n: "Est. 2019 Hoodie",    p: 54, lane: "b", d: "Drop — arrives by Sep 16" },
-    { n: "Ramen Bowl",          p: 26, lane: "a", d: "Arrives by Sep 2" },
-    { n: "Steam Mark Magnet",   p: 8,  lane: "a", d: "Arrives by Aug 31" },
-    { n: "Canvas Tote",         p: 24, lane: "a", d: "Arrives by Sep 2" },
-    { n: "Sticker Sheet",       p: 6,  lane: "a", d: "Arrives by Aug 31" },
-    { n: "Enamel Pin",          p: 12, lane: "a", d: "Arrives by Sep 1" }
+    { n: "Logo Tee",            p: 32, lane: "a", days: 9 },
+    { n: "Embroidered Cap",     p: 28, lane: "b", days: 20 },
+    { n: "Est. 2019 Hoodie",    p: 54, lane: "b", days: 22 },
+    { n: "Ramen Bowl",          p: 26, lane: "a", days: 8 },
+    { n: "Steam Mark Magnet",   p: 8,  lane: "a", days: 6 },
+    { n: "Canvas Tote",         p: 24, lane: "a", days: 8 },
+    { n: "Sticker Sheet",       p: 6,  lane: "a", days: 6 },
+    { n: "Enamel Pin",          p: 12, lane: "a", days: 7 }
   ];
   var grid = document.getElementById("pgrid");
   products.forEach(function (p, i) {
@@ -1732,7 +1746,7 @@
         '<div class="pprice">$' + p.p.toFixed(2) + "</div>" +
         '<div class="plane"><span class="dot ' + p.lane + '"></span> ' +
           (p.lane === "a" ? "Ships in 3–6 days" : "Small batch · 18–25 days") + "</div>" +
-        '<div class="pdate">' + p.d + "</div>" +
+        '<div class="pdate">' + (p.lane === "b" ? "Drop — arrives by " : "Arrives by ") + shortDate(p.days) + "</div>" +
         '<button class="padd" data-i="' + i + '">Add to cart</button>' +
       "</div>";
     grid.appendChild(el);

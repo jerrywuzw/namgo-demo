@@ -3,7 +3,7 @@
 Clickable prototype of the NAMGO platform, built for partner and shop-owner
 conversations. Single self-contained `index.html`, no build step, no dependencies.
 
-**Live:** https://jerrywuzw.github.io/namgo-demo/
+**Live:** https://namgo.co/
 
 ## What's in it
 
@@ -12,7 +12,7 @@ Four screens, switched from the top nav:
 | Screen | What it shows |
 |---|---|
 | **Home** | Animated landing page with a **working earnings calculator** |
-| **Storefront** | `namgo.com/dao-artisan-noodle` — real SKUs, prices, per-item delivery dates, working cart |
+| **Storefront** | `namgo.co/dao-artisan-noodle` — real SKUs, prices, per-item delivery dates, working cart |
 | **Dashboard** | Sales, units, royalties, traffic by channel, compare-to-similar-shops |
 | **Design Studio** | Upload a real logo and watch it land on the product mockups |
 

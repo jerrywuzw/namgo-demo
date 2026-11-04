@@ -20,7 +20,7 @@ import os
 import re
 import sys
 
-SITE = "https://jerrywuzw.github.io/namgo-demo/"
+SITE = "https://namgo.co/"
 
 PAGES = [
     {
